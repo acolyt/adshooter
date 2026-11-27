@@ -707,7 +707,14 @@ async function probe(r){
   for (const k of ['obj', 'objbare', 'type'])
     res[k] = await step('ชิ้นงาน + ' + VARIANT_TH[k] + ' + เทมเพลต', async () => { const c = await gapi(`${S.account.id}/adcreatives`, Object.assign({name: 'AdShooter test'}, v[k]), 'POST'); gapi(c.id, {}, 'DELETE').catch(() => {}); });
   await step('ชิ้นงาน + ปุ่มแบบ Messenger (ไม่ใส่เทมเพลต)', async () => { const c = await gapi(`${S.account.id}/adcreatives`, {name: 'AdShooter test', object_story_id: story, call_to_action: {type: S.tmpl.call_to_action_type || 'MESSAGE_PAGE', value: {app_destination: 'MESSENGER'}}}, 'POST'); gapi(c.id, {}, 'DELETE').catch(() => {}); });
-  lines.push(`<details><summary>ข้อมูลเทมเพลตจากแอดต้นแบบ (คัดลอกส่งให้ Claude)</summary><pre>${esc(S.tmpl.page_welcome_message || '(ว่าง)')}</pre></details>`); show();
+  // ดึงโครงสร้างชิ้นงานของแอดต้นแบบแบบละเอียด (ทีละช่อง เพราะบางช่องอาจอ่านไม่ได้)
+  const F = ['call_to_action','call_to_action_type','asset_feed_spec','degrees_of_freedom_spec','object_story_spec','object_story_id','effective_object_story_id','object_type','object_id','contextual_multi_ads','platform_customizations','destination_spec','interactive_components_spec','messenger_sponsored_message','link_url','link_destination_display_url','title','body','image_hash','video_id','use_page_actor_override','source_instagram_media_id','instagram_user_id','actor_id','status','creative_sourcing_spec','url_tags'];
+  const full = {};
+  const tc = S.tmpl.creative_id;
+  if (tc){
+    await Promise.all(F.map(f => gapi(tc, {fields: f}).then(j => { if (j[f] !== undefined) full[f] = j[f]; }).catch(e => { full[f] = '⚠ ' + (e.message || '').slice(0, 60); })));
+  }
+  lines.push(`<details open><summary>โครงสร้างแอดต้นแบบ (คัดลอกส่งให้ Claude)</summary><pre>${esc(JSON.stringify(full, null, 1))}</pre></details>`); show();
   for (const k of ['obj', 'type'])
     res['inline_' + k] = await step(VARIANT_TH['inline_' + k] + ' (สร้างแบบปิดแล้วลบทิ้ง)', async () => { const ad = await gapi(`${S.account.id}/ads`, {name: 'AdShooter test (ลบได้)', adset_id: S.adset.id, creative: Object.assign({name: 'AdShooter test'}, v[k]), status: 'PAUSED'}, 'POST'); await gapi(ad.id, {}, 'DELETE').catch(() => gapi(ad.id, {status: 'DELETED'}, 'POST')); });
   const ok = ['obj', 'objbare', 'type', 'inline_obj', 'inline_type'].find(k => res[k]);
