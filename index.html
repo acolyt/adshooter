@@ -558,12 +558,14 @@ async function shoot(){
   let ok = 0, fail = 0;
   for (const r of todo){
     const story = parsePost(r.post).story;
+    let step = 'สร้างชิ้นงาน';
     try {
       setSt(r, 'run', 'กำลังสร้างชิ้นงานโฆษณา...');
       const cb = {name: `${r.name.trim()} - ชิ้นงาน`, object_story_id: story};
       if (S.tmpl.call_to_action_type) cb.call_to_action_type = S.tmpl.call_to_action_type;
       if (S.tmpl.page_welcome_message) cb.page_welcome_message = S.tmpl.page_welcome_message;
       const cr = await gapi(`${S.account.id}/adcreatives`, cb, 'POST');
+      step = 'สร้างแอด';
       setSt(r, 'run', 'กำลังสร้างแอด...');
       const ad = await gapi(`${S.account.id}/ads`, {name: r.name.trim(), adset_id: S.adset.id, creative: {creative_id: cr.id}, status: now ? 'ACTIVE' : 'PAUSED'}, 'POST');
       r.done = true; r.adId = ad.id; ok++;
@@ -578,7 +580,8 @@ async function shoot(){
       if (rowEl){ rowEl.classList.add('done'); rowEl.querySelectorAll('input').forEach(i => i.disabled = true); const x = rowEl.querySelector('[data-del]'); if (x) x.remove(); }
     } catch(e){
       fail++;
-      setSt(r, 'err', '✗ ไม่สำเร็จ: ' + esc(e.message) + (e.raw ? `<details><summary>รายละเอียด</summary><pre>${esc(JSON.stringify(e.raw, null, 2))}</pre></details>` : ''));
+      const hint = e.raw && e.raw.code === 3 ? '<br>วิธีแก้: ที่ developers.facebook.com → แอป → การตั้งค่าแอพ → ขั้นสูง → เพิ่มเลขบัญชีโฆษณาในช่อง “ID บัญชีโฆษณาที่ได้รับอนุญาต”' : '';
+      setSt(r, 'err', `✗ ไม่สำเร็จ (ขั้น${step}): ` + esc(e.message) + hint + (e.raw ? `<details><summary>รายละเอียด</summary><pre>${esc(JSON.stringify(e.raw, null, 2))}</pre></details>` : ''));
     }
   }
   busy = false; $('#btnAdd').disabled = false; updateShootLabel(); renderSched(); renderPicks();
