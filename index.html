@@ -561,13 +561,11 @@ async function shoot(){
     let step = 'สร้างชิ้นงาน';
     try {
       setSt(r, 'run', 'กำลังสร้างชิ้นงานโฆษณา...');
-      const cr = await createCreative(`${r.name.trim()} - ชิ้นงาน`, story);
-      step = 'สร้างแอด';
-      setSt(r, 'run', 'กำลังสร้างแอด...');
-      const ad = await gapi(`${S.account.id}/ads`, {name: r.name.trim(), adset_id: S.adset.id, creative: {creative_id: cr.id}, status: now ? 'ACTIVE' : 'PAUSED'}, 'POST');
+      step = 'สร้างชิ้นงาน/แอด';
+      const ad = await createAd(r.name.trim(), story, now ? 'ACTIVE' : 'PAUSED');
       r.done = true; r.adId = ad.id; ok++;
       const link = `https://adsmanager.facebook.com/adsmanager/manage/ads?act=${S.account.id.replace('act_', '')}&selected_ad_ids=${ad.id}`;
-      const ctaNote = S.ctaMode === 'none' ? '<br><span class="run">ปุ่มให้ Facebook ตั้งตามชุดโฆษณา — เปิดดูแอดแรกใน Ads Manager ว่าปุ่มเป็น “ส่งข้อความ” และมีเทมเพลตถูกต้อง</span>' : '';
+      const ctaNote = '';
       if (now) setSt(r, 'ok', `✓ ยิงสำเร็จ เปิดทำงานแล้ว · Ad ID ${esc(ad.id)} · <a href="${link}" target="_blank" rel="noopener">ดูใน Ads Manager</a>` + ctaNote);
       else {
         S.schedule.push({adId: ad.id, name: r.name.trim(), at});
@@ -578,8 +576,8 @@ async function shoot(){
       if (rowEl){ rowEl.classList.add('done'); rowEl.querySelectorAll('input').forEach(i => i.disabled = true); const x = rowEl.querySelector('[data-del]'); if (x) x.remove(); }
     } catch(e){
       fail++;
-      const hint = e.raw && e.raw.code === 3 ? `<br><button data-probe="${r.k}" style="margin-top:6px">🔍 ตรวจหาสาเหตุอัตโนมัติ</button><div data-probeout="${r.k}" class="muted"></div>` : '';
-      setSt(r, 'err', `✗ ไม่สำเร็จ (ขั้น${step}): ` + esc(e.message) + hint + (e.raw ? `<details><summary>รายละเอียด</summary><pre>${esc(JSON.stringify(e.raw, null, 2))}</pre></details>` : ''));
+      const hint = e.raw ? `<br><button data-probe="${r.k}" style="margin-top:6px">🔍 ตรวจหาสาเหตุอัตโนมัติ</button><div data-probeout="${r.k}" class="muted"></div>` : '';
+      setSt(r, 'err', `✗ ไม่สำเร็จ (ขั้น${step}): ` + esc(errText(e)) + hint + (e.raw ? `<details><summary>รายละเอียด</summary><pre>${esc(JSON.stringify(e.raw, null, 2))}</pre></details>` : ''));
     }
   }
   busy = false; $('#btnAdd').disabled = false; updateShootLabel(); renderSched(); renderPicks();
@@ -641,65 +639,66 @@ async function wake(on){
 }
 
 // ---------- CREATIVE (with fallbacks) ----------
-// แบบที่ลอง: 1) ปุ่มแบบ object ไป Messenger  2) ปุ่มแบบเดิม  3) ไม่ส่งปุ่ม (ให้ชุดโฆษณาที่ปลายทางเป็น Messenger กำหนดปุ่มเอง)
-function creativeVariants(){
+// ลองหลายรูปแบบ เพราะ Facebook รับรูปแบบปุ่มต่างกันตามบัญชี/แอป แบบที่ผ่านจะถูกจำไว้
+function creativeVariants(story){
   const t = S.tmpl, cta = t.call_to_action_type || 'MESSAGE_PAGE';
-  const base = t.page_welcome_message ? {page_welcome_message: t.page_welcome_message} : {};
+  const wm = t.page_welcome_message ? {page_welcome_message: t.page_welcome_message} : {};
   return {
-    obj: Object.assign({call_to_action: {type: cta, value: {app_destination: 'MESSENGER'}}}, base),
-    type: Object.assign({call_to_action_type: cta}, base),
-    none: Object.assign({}, base)
+    obj:    Object.assign({object_story_id: story, call_to_action: {type: cta, value: {app_destination: 'MESSENGER'}}}, wm),
+    objbare:Object.assign({object_story_id: story, call_to_action: {type: cta}}, wm),
+    type:   Object.assign({object_story_id: story, call_to_action_type: cta}, wm)
   };
 }
-async function createCreative(name, story){
-  const v = creativeVariants();
-  const order = [S.ctaMode, 'obj', 'type', 'none'].filter((x, i, a) => x && v[x] && a.indexOf(x) === i);
+const VARIANT_TH = {obj: 'ปุ่มแบบ Messenger', objbare: 'ปุ่มแบบย่อ', type: 'ปุ่มแบบเดิม', inline_obj: 'สร้างพร้อมแอด (ปุ่มแบบ Messenger)', inline_type: 'สร้างพร้อมแอด (ปุ่มแบบเดิม)'};
+const errText = e => { const r = e.raw || {}; return [r.error_user_title, r.error_user_msg || e.message, r.error_subcode ? 'subcode ' + r.error_subcode : ''].filter(Boolean).join(' · '); };
+// คืนค่า {creative} สำหรับส่งเข้า ads (เป็น creative_id หรือสเปกแบบ inline)
+async function buildCreative(name, story){
+  const v = creativeVariants(story);
+  const order = [S.ctaMode, 'obj', 'objbare', 'type'].filter((x, i, a) => x && v[x] && a.indexOf(x) === i);
   let lastErr;
+  if (S.ctaMode && S.ctaMode.startsWith('inline_')) return {inline: Object.assign({name}, v[S.ctaMode.slice(7)])};
   for (const mode of order){
     try {
-      const c = await gapi(`${S.account.id}/adcreatives`, Object.assign({name, object_story_id: story}, v[mode]), 'POST');
+      const c = await gapi(`${S.account.id}/adcreatives`, Object.assign({name}, v[mode]), 'POST');
       if (S.ctaMode !== mode){ S.ctaMode = mode; save(); }
-      return c;
+      return {creative_id: c.id};
     } catch(e){ lastErr = e; if (!(e.raw && (e.raw.code === 3 || e.raw.code === 100))) throw e; }
   }
-  throw lastErr;
+  // ทุกแบบโดนปฏิเสธที่ขั้นสร้างชิ้นงาน → ลองส่งสเปกไปพร้อมการสร้างแอด
+  return {inline: Object.assign({name}, v.obj), inlineFallback: Object.assign({name}, v.type), lastErr};
+}
+async function createAd(name, story, status){
+  const b = await buildCreative(`${name} - ชิ้นงาน`, story);
+  const post = creative => gapi(`${S.account.id}/ads`, {name, adset_id: S.adset.id, creative, status}, 'POST');
+  if (b.creative_id) return post({creative_id: b.creative_id});
+  try { const ad = await post(b.inline); if (!S.ctaMode || !S.ctaMode.startsWith('inline_')){ S.ctaMode = 'inline_obj'; save(); } return ad; }
+  catch(e){
+    if (!b.inlineFallback) throw e;
+    const ad = await post(b.inlineFallback); S.ctaMode = 'inline_type'; save(); return ad;
+  }
 }
 
 // ---------- DIAGNOSE #3 ----------
 async function probe(r){
   const out = document.querySelector(`[data-probeout="${r.k}"]`);
   const story = parsePost(r.post).story;
-  const lines = [];
-  const show = () => { out.innerHTML = lines.join('<br>'); };
-  const tryCreative = async (label, body) => {
-    lines.push(`<span class="run">กำลังทดสอบ: ${esc(label)}...</span>`); show();
-    try {
-      const c = await gapi(`${S.account.id}/adcreatives`, Object.assign({name: 'AdShooter test (ลบได้)', object_story_id: story}, body), 'POST');
-      lines[lines.length - 1] = `<span class="ok">✓ ${esc(label)}: ผ่าน</span>`;
-      try { await gapi(c.id, {}, 'DELETE'); } catch(e){}
-      show(); return true;
-    } catch(e){
-      lines[lines.length - 1] = `<span class="err">✗ ${esc(label)}: ${esc(e.message)}</span>`; show(); return false;
-    }
+  const lines = [], show = () => { out.innerHTML = lines.join('<br>'); };
+  const step = async (label, fn) => {
+    const i = lines.push(`<span class="run">ทดสอบ: ${esc(label)}...</span>`) - 1; show();
+    try { await fn(); lines[i] = `<span class="ok">✓ ${esc(label)}</span>`; show(); return true; }
+    catch(e){ lines[i] = `<span class="err">✗ ${esc(label)}: ${esc(errText(e))}</span>`; show(); return false; }
   };
-  try {
-    const me = await gapi('me', {fields: 'id,name'});
-    lines.push(`<span class="ok">✓ Token ใช้ได้ (${esc(me.name)})</span>`); show();
-  } catch(e){ lines.push(`<span class="err">✗ Token: ${esc(e.message)}</span>`); show(); return; }
-  try {
-    const acc = await gapi(S.account.id, {fields: 'name,account_status'});
-    lines.push(`<span class="ok">✓ อ่านบัญชีโฆษณาได้ (สถานะ ${esc(acc.account_status)})</span>`); show();
-  } catch(e){ lines.push(`<span class="err">✗ อ่านบัญชีโฆษณา: ${esc(e.message)}</span>`); show(); }
-  const a = await tryCreative('สร้างชิ้นงานจากโพสต์อย่างเดียว', {});
-  if (!a){ lines.push('<b>สรุป:</b> แอปยังสร้างชิ้นงานโฆษณาไม่ได้เลย ปัญหาอยู่ที่สิทธิ์ของแอป/บัญชีโฆษณา ไม่ใช่เทมเพลต'); show(); return; }
-  const v = creativeVariants();
-  const res = {};
-  res.obj = await tryCreative('ปุ่มส่งข้อความ (แบบ Messenger) + เทมเพลต', v.obj);
-  res.type = await tryCreative('ปุ่มส่งข้อความ (แบบเดิม) + เทมเพลต', v.type);
-  res.none = await tryCreative('เทมเพลตอย่างเดียว ไม่ส่งปุ่ม', v.none);
-  const ok = ['obj', 'type', 'none'].find(k => res[k]);
-  if (ok){ S.ctaMode = ok; save(); lines.push(`<b>สรุป:</b> ใช้แบบ “${ok === 'obj' ? 'ปุ่มแบบ Messenger' : ok === 'type' ? 'ปุ่มแบบเดิม' : 'ไม่ส่งปุ่ม'}” ได้ — ตั้งค่าให้แล้ว กดยิงใหม่ได้เลย`); }
-  else lines.push('<b>สรุป:</b> ติดที่เทมเพลตข้อความ (page_welcome_message)');
+  const v = creativeVariants(story), res = {};
+  await step('Token และบัญชีโฆษณา', () => gapi(S.account.id, {fields: 'name,account_status'}));
+  await step('ชุดโฆษณา', async () => { const a = await gapi(S.adset.id, {fields: 'name,destination_type,optimization_goal'}); lines.push(`<span class="muted">ปลายทาง: ${esc(a.destination_type)} · เป้าหมาย: ${esc(a.optimization_goal)}</span>`); });
+  await step('สร้างชิ้นงานจากโพสต์อย่างเดียว', async () => { const c = await gapi(`${S.account.id}/adcreatives`, {name: 'AdShooter test', object_story_id: story}, 'POST'); gapi(c.id, {}, 'DELETE').catch(() => {}); });
+  for (const k of ['obj', 'objbare', 'type'])
+    res[k] = await step('ชิ้นงาน + ' + VARIANT_TH[k] + ' + เทมเพลต', async () => { const c = await gapi(`${S.account.id}/adcreatives`, Object.assign({name: 'AdShooter test'}, v[k]), 'POST'); gapi(c.id, {}, 'DELETE').catch(() => {}); });
+  for (const k of ['obj', 'type'])
+    res['inline_' + k] = await step(VARIANT_TH['inline_' + k] + ' (สร้างแบบปิดแล้วลบทิ้ง)', async () => { const ad = await gapi(`${S.account.id}/ads`, {name: 'AdShooter test (ลบได้)', adset_id: S.adset.id, creative: Object.assign({name: 'AdShooter test'}, v[k]), status: 'PAUSED'}, 'POST'); await gapi(ad.id, {}, 'DELETE').catch(() => gapi(ad.id, {status: 'DELETED'}, 'POST')); });
+  const ok = ['obj', 'objbare', 'type', 'inline_obj', 'inline_type'].find(k => res[k]);
+  if (ok){ S.ctaMode = ok; save(); lines.push(`<b>สรุป:</b> ใช้แบบ “${VARIANT_TH[ok]}” ได้ — ตั้งค่าให้แล้ว กดยิงใหม่ได้เลย`); }
+  else lines.push('<b>สรุป:</b> ทุกแบบไม่ผ่าน — ส่งภาพหน้าจอนี้ให้ Claude ดูต่อ');
   show();
 }
 
