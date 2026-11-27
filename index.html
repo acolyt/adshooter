@@ -690,6 +690,18 @@ async function probe(r){
   };
   const v = creativeVariants(story), res = {};
   await step('Token และบัญชีโฆษณา', () => gapi(S.account.id, {fields: 'name,account_status'}));
+  await step('สิทธิ์ที่ติ๊กไว้ใน Token', async () => {
+    const j = await gapi('me/permissions');
+    const got = (j.data || []).filter(x => x.status === 'granted').map(x => x.permission);
+    const need = ['ads_management', 'ads_read', 'business_management', 'pages_show_list', 'pages_read_engagement', 'pages_manage_ads'];
+    const miss = need.filter(x => !got.includes(x));
+    lines.push(`<span class="muted">มี: ${esc(got.join(', '))}</span>` + (miss.length ? `<br><span class="err">ขาด: ${esc(miss.join(', '))}</span>` : ''));
+  });
+  await step('สิทธิ์บนเพจ', async () => {
+    const j = await gapi('me/accounts', {fields: 'id,name,tasks'});
+    const pg = (j.data || []).find(x => x.id === S.page.id);
+    lines.push(`<span class="muted">${pg ? esc(pg.name) + ': ' + esc((pg.tasks || []).join(', ')) : 'ไม่พบเพจนี้ใน Token'}</span>`);
+  });
   await step('ชุดโฆษณา', async () => { const a = await gapi(S.adset.id, {fields: 'name,destination_type,optimization_goal'}); lines.push(`<span class="muted">ปลายทาง: ${esc(a.destination_type)} · เป้าหมาย: ${esc(a.optimization_goal)}</span>`); });
   await step('สร้างชิ้นงานจากโพสต์อย่างเดียว', async () => { const c = await gapi(`${S.account.id}/adcreatives`, {name: 'AdShooter test', object_story_id: story}, 'POST'); gapi(c.id, {}, 'DELETE').catch(() => {}); });
   for (const k of ['obj', 'objbare', 'type'])
