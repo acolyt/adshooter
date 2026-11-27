@@ -391,7 +391,7 @@ async function onTmpl(){
     try { cr = await gapi(ad.creative.id, {fields: 'id,name,object_story_id,effective_object_story_id,call_to_action_type'}); }
     catch(e2){ box.innerHTML = `<div class="box err">อ่านแอดต้นแบบไม่ได้: ${esc(e2.message)}</div>`; return; }
   }
-  D.tmpl = {creative_id: cr.id, call_to_action_type: cr.call_to_action_type || '', page_welcome_message: cr.page_welcome_message || '', raw: cr};
+  D.tmpl = {extra: null, creative_id: cr.id, call_to_action_type: cr.call_to_action_type || '', page_welcome_message: cr.page_welcome_message || '', raw: cr};
   box.innerHTML = tmplHtml(D.tmpl);
 }
 function collectTexts(o, out = [], depth = 0){
@@ -640,21 +640,41 @@ async function wake(on){
 
 // ---------- CREATIVE (with fallbacks) ----------
 // ลองหลายรูปแบบ เพราะ Facebook รับรูปแบบปุ่มต่างกันตามบัญชี/แอป แบบที่ผ่านจะถูกจำไว้
-function creativeVariants(story){
-  const t = S.tmpl, cta = t.call_to_action_type || 'MESSAGE_PAGE';
-  const wm = t.page_welcome_message ? {page_welcome_message: t.page_welcome_message} : {};
-  return {
-    obj:    Object.assign({object_story_id: story, call_to_action: {type: cta, value: {app_destination: 'MESSENGER'}}}, wm),
-    objbare:Object.assign({object_story_id: story, call_to_action: {type: cta}}, wm),
-    type:   Object.assign({object_story_id: story, call_to_action_type: cta}, wm)
-  };
+const EXTRA_F = ['instagram_user_id', 'contextual_multi_ads', 'degrees_of_freedom_spec', 'creative_sourcing_spec'];
+async function ensureTmplExtra(){
+  if (S.tmpl.extra || !S.tmpl.creative_id) return;
+  const ex = {};
+  await Promise.all(EXTRA_F.map(f => gapi(S.tmpl.creative_id, {fields: f}).then(j => { if (j[f] !== undefined) ex[f] = j[f]; }).catch(() => {})));
+  S.tmpl.extra = ex; save();
 }
-const VARIANT_TH = {obj: 'ปุ่มแบบ Messenger', objbare: 'ปุ่มแบบย่อ', type: 'ปุ่มแบบเดิม', inline_obj: 'สร้างพร้อมแอด (ปุ่มแบบ Messenger)', inline_type: 'สร้างพร้อมแอด (ปุ่มแบบเดิม)'};
+function creativeVariants(story){
+  const t = S.tmpl, ex = t.extra || {}, cta = t.call_to_action_type || 'MESSAGE_PAGE';
+  const wm = t.page_welcome_message ? {page_welcome_message: t.page_welcome_message} : {};
+  // ปิด product extensions (ต้องใช้สิทธิ์แค็ตตาล็อก ซึ่งแอปไม่มี) ที่เหลือเหมือนแอดต้นแบบ
+  const dofOff = {creative_features_spec: {product_extensions: {enroll_status: 'OPT_OUT'}}};
+  const ig = ex.instagram_user_id ? {instagram_user_id: ex.instagram_user_id} : {};
+  const cma = ex.contextual_multi_ads ? {contextual_multi_ads: ex.contextual_multi_ads} : {};
+  const v = {
+    safe_ig: Object.assign({object_story_id: story, call_to_action_type: cta, degrees_of_freedom_spec: dofOff}, ig, cma, wm),
+    safe:    Object.assign({object_story_id: story, call_to_action_type: cta, degrees_of_freedom_spec: dofOff}, wm),
+    obj:     Object.assign({object_story_id: story, call_to_action: {type: cta, value: {app_destination: 'MESSENGER'}}, degrees_of_freedom_spec: dofOff}, wm),
+    type:    Object.assign({object_story_id: story, call_to_action_type: cta}, wm)
+  };
+  if (ex.degrees_of_freedom_spec) {
+    const d = JSON.parse(JSON.stringify(ex.degrees_of_freedom_spec));
+    const cfs = d.creative_features_spec || {};
+    delete cfs.standard_enhancements;
+    v.full = Object.assign({object_story_id: story, call_to_action_type: cta, degrees_of_freedom_spec: d}, ig, cma, ex.creative_sourcing_spec ? {creative_sourcing_spec: ex.creative_sourcing_spec} : {}, wm);
+  }
+  return v;
+}
+const VARIANT_TH = {safe_ig: 'ปุ่มส่งข้อความ + ปิดส่วนขยายสินค้า + IG', safe: 'ปุ่มส่งข้อความ + ปิดส่วนขยายสินค้า', full: 'เหมือนแอดต้นแบบทุกช่อง (รวมแค็ตตาล็อก)', obj: 'ปุ่มแบบ Messenger', type: 'ปุ่มแบบเดิม', inline_safe: 'สร้างพร้อมแอด (ปิดส่วนขยายสินค้า)'};
 const errText = e => { const r = e.raw || {}; return [r.error_user_title, r.error_user_msg || e.message, r.error_subcode ? 'subcode ' + r.error_subcode : ''].filter(Boolean).join(' · '); };
 // คืนค่า {creative} สำหรับส่งเข้า ads (เป็น creative_id หรือสเปกแบบ inline)
 async function buildCreative(name, story){
+  await ensureTmplExtra();
   const v = creativeVariants(story);
-  const order = [S.ctaMode, 'obj', 'objbare', 'type'].filter((x, i, a) => x && v[x] && a.indexOf(x) === i);
+  const order = [S.ctaMode, 'safe_ig', 'safe', 'full', 'obj', 'type'].filter((x, i, a) => x && v[x] && a.indexOf(x) === i);
   let lastErr;
   if (S.ctaMode && S.ctaMode.startsWith('inline_')) return {inline: Object.assign({name}, v[S.ctaMode.slice(7)])};
   for (const mode of order){
@@ -665,16 +685,16 @@ async function buildCreative(name, story){
     } catch(e){ lastErr = e; if (!(e.raw && (e.raw.code === 3 || e.raw.code === 100))) throw e; }
   }
   // ทุกแบบโดนปฏิเสธที่ขั้นสร้างชิ้นงาน → ลองส่งสเปกไปพร้อมการสร้างแอด
-  return {inline: Object.assign({name}, v.obj), inlineFallback: Object.assign({name}, v.type), lastErr};
+  return {inline: Object.assign({name}, v.safe), inlineFallback: Object.assign({name}, v.safe_ig), lastErr};
 }
 async function createAd(name, story, status){
   const b = await buildCreative(`${name} - ชิ้นงาน`, story);
   const post = creative => gapi(`${S.account.id}/ads`, {name, adset_id: S.adset.id, creative, status}, 'POST');
   if (b.creative_id) return post({creative_id: b.creative_id});
-  try { const ad = await post(b.inline); if (!S.ctaMode || !S.ctaMode.startsWith('inline_')){ S.ctaMode = 'inline_obj'; save(); } return ad; }
+  try { const ad = await post(b.inline); if (!S.ctaMode || !S.ctaMode.startsWith('inline_')){ S.ctaMode = 'inline_safe'; save(); } return ad; }
   catch(e){
     if (!b.inlineFallback) throw e;
-    const ad = await post(b.inlineFallback); S.ctaMode = 'inline_type'; save(); return ad;
+    const ad = await post(b.inlineFallback); S.ctaMode = 'inline_safe_ig'; save(); return ad;
   }
 }
 
@@ -688,6 +708,7 @@ async function probe(r){
     try { await fn(); lines[i] = `<span class="ok">✓ ${esc(label)}</span>`; show(); return true; }
     catch(e){ lines[i] = `<span class="err">✗ ${esc(label)}: ${esc(errText(e))}</span>`; show(); return false; }
   };
+  await ensureTmplExtra();
   const v = creativeVariants(story), res = {};
   await step('Token และบัญชีโฆษณา', () => gapi(S.account.id, {fields: 'name,account_status'}));
   await step('สิทธิ์ที่ติ๊กไว้ใน Token', async () => {
@@ -704,8 +725,8 @@ async function probe(r){
   });
   await step('ชุดโฆษณา', async () => { const a = await gapi(S.adset.id, {fields: 'name,destination_type,optimization_goal'}); lines.push(`<span class="muted">ปลายทาง: ${esc(a.destination_type)} · เป้าหมาย: ${esc(a.optimization_goal)}</span>`); });
   await step('สร้างชิ้นงานจากโพสต์อย่างเดียว', async () => { const c = await gapi(`${S.account.id}/adcreatives`, {name: 'AdShooter test', object_story_id: story}, 'POST'); gapi(c.id, {}, 'DELETE').catch(() => {}); });
-  for (const k of ['obj', 'objbare', 'type'])
-    res[k] = await step('ชิ้นงาน + ' + VARIANT_TH[k] + ' + เทมเพลต', async () => { const c = await gapi(`${S.account.id}/adcreatives`, Object.assign({name: 'AdShooter test'}, v[k]), 'POST'); gapi(c.id, {}, 'DELETE').catch(() => {}); });
+  for (const k of ['safe_ig', 'safe', 'full', 'obj', 'type'].filter(k => v[k]))
+    res[k] = await step('ชิ้นงาน: ' + VARIANT_TH[k], async () => { const c = await gapi(`${S.account.id}/adcreatives`, Object.assign({name: 'AdShooter test'}, v[k]), 'POST'); gapi(c.id, {}, 'DELETE').catch(() => {}); });
   await step('ชิ้นงาน + ปุ่มแบบ Messenger (ไม่ใส่เทมเพลต)', async () => { const c = await gapi(`${S.account.id}/adcreatives`, {name: 'AdShooter test', object_story_id: story, call_to_action: {type: S.tmpl.call_to_action_type || 'MESSAGE_PAGE', value: {app_destination: 'MESSENGER'}}}, 'POST'); gapi(c.id, {}, 'DELETE').catch(() => {}); });
   // ดึงโครงสร้างชิ้นงานของแอดต้นแบบแบบละเอียด (ทีละช่อง เพราะบางช่องอาจอ่านไม่ได้)
   const F = ['call_to_action','call_to_action_type','asset_feed_spec','degrees_of_freedom_spec','object_story_spec','object_story_id','effective_object_story_id','object_type','object_id','contextual_multi_ads','platform_customizations','destination_spec','interactive_components_spec','messenger_sponsored_message','link_url','link_destination_display_url','title','body','image_hash','video_id','use_page_actor_override','source_instagram_media_id','instagram_user_id','actor_id','status','creative_sourcing_spec','url_tags'];
@@ -714,10 +735,10 @@ async function probe(r){
   if (tc){
     await Promise.all(F.map(f => gapi(tc, {fields: f}).then(j => { if (j[f] !== undefined) full[f] = j[f]; }).catch(e => { full[f] = '⚠ ' + (e.message || '').slice(0, 60); })));
   }
-  lines.push(`<details open><summary>โครงสร้างแอดต้นแบบ (คัดลอกส่งให้ Claude)</summary><pre>${esc(JSON.stringify(full, null, 1))}</pre></details>`); show();
-  for (const k of ['obj', 'type'])
+  lines.push(`<details><summary>โครงสร้างแอดต้นแบบ (คัดลอกส่งให้ Claude)</summary><pre>${esc(JSON.stringify(full, null, 1))}</pre></details>`); show();
+  for (const k of ['safe'])
     res['inline_' + k] = await step(VARIANT_TH['inline_' + k] + ' (สร้างแบบปิดแล้วลบทิ้ง)', async () => { const ad = await gapi(`${S.account.id}/ads`, {name: 'AdShooter test (ลบได้)', adset_id: S.adset.id, creative: Object.assign({name: 'AdShooter test'}, v[k]), status: 'PAUSED'}, 'POST'); await gapi(ad.id, {}, 'DELETE').catch(() => gapi(ad.id, {status: 'DELETED'}, 'POST')); });
-  const ok = ['obj', 'objbare', 'type', 'inline_obj', 'inline_type'].find(k => res[k]);
+  const ok = ['safe_ig', 'safe', 'full', 'obj', 'type', 'inline_safe'].find(k => res[k]);
   if (ok){ S.ctaMode = ok; save(); lines.push(`<b>สรุป:</b> ใช้แบบ “${VARIANT_TH[ok]}” ได้ — ตั้งค่าให้แล้ว กดยิงใหม่ได้เลย`); }
   else lines.push('<b>สรุป:</b> ทุกแบบไม่ผ่าน — ส่งภาพหน้าจอนี้ให้ Claude ดูต่อ');
   show();
