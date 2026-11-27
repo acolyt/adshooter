@@ -687,6 +687,14 @@ function creativeVariants(story){
 const VARIANT_TH = {clean_ig: 'ปุ่มส่งข้อความ + เทมเพลตแบบตัดค่าภายใน + IG', clean: 'ปุ่มส่งข้อความ + เทมเพลตแบบตัดค่าภายใน', nowm: '(ทดสอบ) ปุ่มส่งข้อความ ไม่ใส่เทมเพลต', safe_ig: 'ปุ่มส่งข้อความ + ปิดส่วนขยายสินค้า + IG', safe: 'ปุ่มส่งข้อความ + ปิดส่วนขยายสินค้า', full: 'เหมือนแอดต้นแบบทุกช่อง (รวมแค็ตตาล็อก)', obj: 'ปุ่มแบบ Messenger', type: 'ปุ่มแบบเดิม', inline_safe: 'สร้างพร้อมแอด (ปิดส่วนขยายสินค้า)'};
 const errText = e => { const r = e.raw || {}; return [r.error_user_title, r.error_user_msg || e.message, r.error_subcode ? 'subcode ' + r.error_subcode : ''].filter(Boolean).join(' · '); };
 // คืนค่า {creative} สำหรับส่งเข้า ads (เป็น creative_id หรือสเปกแบบ inline)
+// แอดแบบทักแชทต้องสร้างชิ้นงานด้วย Page access token (ตามเอกสาร Meta: Ads that click to Messenger)
+async function pageToken(){
+  if (S.page.token) return S.page.token;
+  const j = await gapi('me/accounts', {fields: 'id,access_token'});
+  const pg = (j.data || []).find(x => x.id === S.page.id);
+  if (pg && pg.access_token){ S.page.token = pg.access_token; save(); return pg.access_token; }
+  return S.token;
+}
 async function buildCreative(name, story){
   await ensureTmplExtra();
   const v = creativeVariants(story);
@@ -695,7 +703,7 @@ async function buildCreative(name, story){
   if (S.ctaMode && S.ctaMode.startsWith('inline_')) return {inline: Object.assign({name}, v[S.ctaMode.slice(7)])};
   for (const mode of order){
     try {
-      const c = await gapi(`${S.account.id}/adcreatives`, Object.assign({name}, v[mode]), 'POST');
+      const c = await gapi(`${S.account.id}/adcreatives`, Object.assign({name}, v[mode]), 'POST', await pageToken());
       if (S.ctaMode !== mode){ S.ctaMode = mode; save(); }
       return {creative_id: c.id};
     } catch(e){ lastErr = e; if (!(e.raw && (e.raw.code === 3 || e.raw.code === 100))) throw e; }
@@ -740,10 +748,11 @@ async function probe(r){
     lines.push(`<span class="muted">${pg ? esc(pg.name) + ': ' + esc((pg.tasks || []).join(', ')) : 'ไม่พบเพจนี้ใน Token'}</span>`);
   });
   await step('ชุดโฆษณา', async () => { const a = await gapi(S.adset.id, {fields: 'name,destination_type,optimization_goal'}); lines.push(`<span class="muted">ปลายทาง: ${esc(a.destination_type)} · เป้าหมาย: ${esc(a.optimization_goal)}</span>`); });
-  await step('สร้างชิ้นงานจากโพสต์อย่างเดียว', async () => { const c = await gapi(`${S.account.id}/adcreatives`, {name: 'AdShooter test', object_story_id: story}, 'POST'); gapi(c.id, {}, 'DELETE').catch(() => {}); });
+  await step('สร้างชิ้นงานจากโพสต์อย่างเดียว', async () => { const c = await gapi(`${S.account.id}/adcreatives`, {name: 'AdShooter test', object_story_id: story}, 'POST'); gapi(c.id, {}, 'DELETE', S.page.token).catch(() => gapi(c.id, {}, 'DELETE').catch(() => {})); });
+  lines.push(`<span class="muted">สร้างชิ้นงานด้วย Page token: ${S.page.token ? 'มี' : 'ไม่มี (ใช้ Token หลักแทน)'}</span>`); show();
   v.nowm = {object_story_id: story, call_to_action_type: S.tmpl.call_to_action_type || 'MESSAGE_PAGE'};
   for (const k of ['nowm', 'clean_ig', 'clean', 'safe_ig', 'full'].filter(k => v[k]))
-    res[k] = await step('ชิ้นงาน: ' + VARIANT_TH[k], async () => { const c = await gapi(`${S.account.id}/adcreatives`, Object.assign({name: 'AdShooter test'}, v[k]), 'POST'); gapi(c.id, {}, 'DELETE').catch(() => {}); });
+    res[k] = await step('ชิ้นงาน: ' + VARIANT_TH[k], async () => { const c = await gapi(`${S.account.id}/adcreatives`, Object.assign({name: 'AdShooter test'}, v[k]), 'POST', await pageToken()); gapi(c.id, {}, 'DELETE', S.page.token).catch(() => gapi(c.id, {}, 'DELETE').catch(() => {})); });
   // ดึงโครงสร้างชิ้นงานของแอดต้นแบบแบบละเอียด (ทีละช่อง เพราะบางช่องอาจอ่านไม่ได้)
   const F = ['call_to_action','call_to_action_type','asset_feed_spec','degrees_of_freedom_spec','object_story_spec','object_story_id','effective_object_story_id','object_type','object_id','contextual_multi_ads','platform_customizations','destination_spec','interactive_components_spec','messenger_sponsored_message','link_url','link_destination_display_url','title','body','image_hash','video_id','use_page_actor_override','source_instagram_media_id','instagram_user_id','actor_id','status','creative_sourcing_spec','url_tags'];
   const full = {};
