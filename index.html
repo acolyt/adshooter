@@ -580,7 +580,7 @@ async function shoot(){
       if (rowEl){ rowEl.classList.add('done'); rowEl.querySelectorAll('input').forEach(i => i.disabled = true); const x = rowEl.querySelector('[data-del]'); if (x) x.remove(); }
     } catch(e){
       fail++;
-      const hint = e.raw && e.raw.code === 3 ? '<br>วิธีแก้: ที่ developers.facebook.com → แอป → การตั้งค่าแอพ → ขั้นสูง → เพิ่มเลขบัญชีโฆษณาในช่อง “ID บัญชีโฆษณาที่ได้รับอนุญาต”' : '';
+      const hint = e.raw && e.raw.code === 3 ? `<br><button data-probe="${r.k}" style="margin-top:6px">🔍 ตรวจหาสาเหตุอัตโนมัติ</button><div data-probeout="${r.k}" class="muted"></div>` : '';
       setSt(r, 'err', `✗ ไม่สำเร็จ (ขั้น${step}): ` + esc(e.message) + hint + (e.raw ? `<details><summary>รายละเอียด</summary><pre>${esc(JSON.stringify(e.raw, null, 2))}</pre></details>` : ''));
     }
   }
@@ -640,6 +640,38 @@ async function wake(on){
     if (on && !wl && 'wakeLock' in navigator && document.visibilityState === 'visible'){ wl = await navigator.wakeLock.request('screen'); wl.addEventListener('release', () => { wl = null; }); }
     else if (!on && wl){ await wl.release(); wl = null; }
   } catch(e){}
+}
+
+// ---------- DIAGNOSE #3 ----------
+async function probe(r){
+  const out = document.querySelector(`[data-probeout="${r.k}"]`);
+  const story = parsePost(r.post).story;
+  const lines = [];
+  const show = () => { out.innerHTML = lines.join('<br>'); };
+  const tryCreative = async (label, body) => {
+    lines.push(`<span class="run">กำลังทดสอบ: ${esc(label)}...</span>`); show();
+    try {
+      const c = await gapi(`${S.account.id}/adcreatives`, Object.assign({name: 'AdShooter test (ลบได้)', object_story_id: story}, body), 'POST');
+      lines[lines.length - 1] = `<span class="ok">✓ ${esc(label)}: ผ่าน</span>`;
+      try { await gapi(c.id, {}, 'DELETE'); } catch(e){}
+      show(); return true;
+    } catch(e){
+      lines[lines.length - 1] = `<span class="err">✗ ${esc(label)}: ${esc(e.message)}</span>`; show(); return false;
+    }
+  };
+  try {
+    const me = await gapi('me', {fields: 'id,name'});
+    lines.push(`<span class="ok">✓ Token ใช้ได้ (${esc(me.name)})</span>`); show();
+  } catch(e){ lines.push(`<span class="err">✗ Token: ${esc(e.message)}</span>`); show(); return; }
+  try {
+    const acc = await gapi(S.account.id, {fields: 'name,account_status'});
+    lines.push(`<span class="ok">✓ อ่านบัญชีโฆษณาได้ (สถานะ ${esc(acc.account_status)})</span>`); show();
+  } catch(e){ lines.push(`<span class="err">✗ อ่านบัญชีโฆษณา: ${esc(e.message)}</span>`); show(); }
+  const a = await tryCreative('สร้างชิ้นงานจากโพสต์อย่างเดียว', {});
+  if (!a){ lines.push('<b>สรุป:</b> แอปยังสร้างชิ้นงานโฆษณาไม่ได้เลย ปัญหาอยู่ที่สิทธิ์ของแอป/บัญชีโฆษณา ไม่ใช่เทมเพลต'); show(); return; }
+  if (S.tmpl.call_to_action_type){ const b = await tryCreative('ใส่ปุ่ม ' + S.tmpl.call_to_action_type, {call_to_action_type: S.tmpl.call_to_action_type}); if (!b){ lines.push('<b>สรุป:</b> ติดที่ปุ่ม CTA'); show(); return; } }
+  if (S.tmpl.page_welcome_message){ const c = await tryCreative('ใส่เทมเพลตข้อความ', {page_welcome_message: S.tmpl.page_welcome_message}); if (!c){ lines.push('<b>สรุป:</b> ติดที่เทมเพลตข้อความ (page_welcome_message)'); show(); return; } }
+  lines.push('<b>สรุป:</b> สร้างชิ้นงานผ่านทุกแบบ ปัญหาน่าจะอยู่ที่ขั้นสร้างแอด'); show();
 }
 
 // ---------- PICK FROM DATE ----------
@@ -798,6 +830,7 @@ $('#rows').addEventListener('change', e => {
   if (t.dataset.post){ const r = rows.find(x => x.k == t.dataset.post); previewRow(r); }
 });
 $('#rows').addEventListener('click', e => {
+  const pk = e.target.dataset.probe; if (pk){ const r = rows.find(x => x.k == pk); e.target.disabled = true; if (r) probe(r); return; }
   const k = e.target.dataset.del; if (!k) return;
   rows = rows.filter(r => r.k != k); if (!rows.length) rows = [newRow()];
   updateNames(); renderRows(); updateShootLabel(); renderPicks();
