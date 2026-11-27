@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ยิงแอด">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f3f4f7">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAAEwElEQVR42u2dTVocMQxEB329ZR9OGo7ATdmHC2TBLuFjmJm2XFV6teWnLfm1bMtu6+nX7z8XhL5S4QIEHAg4EHAg4EDAgYADAQcCDgQcCDgQAg4EHAg4EHAg4EDAgYADAQcCDgQcCAEHAg4EHAg4EHAg4EDaOsZa/v72/PNffnn9GOiipyEfUt+EArjkw3E6ENNACYSjjYl4SnLg2MhEKiUJcEhhkYSINxyyWGQg4gqHBRbuiPjBYYeFLyIFGbTfPnK4Y+EYQgoysMg1cuRhYRRCCjKw0Q+OCWSIW6o4rMzBQnyIkYOjk4wfdoZgkybCsbobTnG9RSPT4Fjn9EXutmuwKxwrHN3mYuvGq8ORcYYv7yTifjjO9el2hyaZc7AOXNGMjNX45shxihNlM9Du1hW+G75yVoQjnowAPg5mGMxCtCLHg55yPI/5YJu3sFWQAR8hZ0jdvwThgPEq/DM+I3vEiubgUZABH96rlXVkXPX1oke/vH7or1/6MqR3++L07qEl3Oxzfkz+/PM5t/w0RY69r8iiAL63bQ2MFrnnCzsAGyPHfU583GtG1z7tctHQqyY71wKp31JUZNjo760tewKrzSxiBvHDCQ6jBHN2CriSXiaFdzfJ5IoJGzpRXTzvOW7OoTbeZ8w/SspBmpN28WXaOvMpqYFy4VAO4O6Dy2E9FT3L+18++pR//v72fKtdOkc9Di6evvpTfVvuQJA5xzmBamaZJiE4OseUl9ePO0J9ZwJGBMciYFCRKQ2OXQcgkjIxRA4kBofmi3LWoKA5uKzw+THkI8Grj/jHuVdXuQ0XTm5/x4qs6Jf/sOERzDmMURt7y/YsOL4ZI74n4JufTljWFjGDW/qBAwEHAg4EHAg4hJNvY/frp8Bx94r07jUwcITHj8kxwxiO07vt/3/Y8IgLB4w3HoG86RE3NaBhTFEYtmrOVaxnuTv7QAJzDhQNx67jepr3MwHH/sFl2iZc+fbZI98K3Pq4O/5E89toIsfJHTB21/4IPgL5815f962s9SHchfeQ9owU4l3YY9EiOIpyshdK7zDnQEJwtI0Rmi9oWyZmnfnF59EMKDZwBNzTGHBbZgcczR2mwEeSyRWW4d7Lh+/F3FNWK7v4yDs5VpHbp/39tKUGCMV4DPhIPW0qXQBQvMbb3hZOLwAoXmFPn12KDhvTRtFhuYlITD2UnMih2Su7atlbMHq4nNpa5JFdwcDiJFGRQCQFrLJagQ+jzYGi9A7tF4LDrtq0ddVqv8gxkA87MozzHJ++tkg8+Ia6st4YM/o0xnG9Xe4bp/HVITdGx9YMaX+FR4xib0VoFpKUrNsfOVY4dAsiGVbIwbHohWtzrnXjDeBYGpAXOdquwcZwNAzYFusjnZm1FhzNE7ofdoNgk4bCMfkmHbWEryIcAxHR3Aco/IWlluc5JvChbKPusBI/xOijX/gRi7wjR1IIMQK98CztD4kcviHEEWtXOIwQ8Y123nCII+I+CCbAIYhIxvIqBw4FSsKW3IFw9FPCtU+AMi61PwWOB3GZWYB4LhzoQkkNBBwIOBBwIOBAwIGAAwEHAg4EHLgAAQcCDgQcCDgQcCDgQMCBgAMBBwIOhIADAQcCDgQcCDgQcCAP/QU5Y6krV6UDOAAAAABJRU5ErkJggg==">
+<link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAAEwElEQVR42u2dTVocMQxEB329ZR9OGo7ATdmHC2TBLuFjmJm2XFV6teWnLfm1bMtu6+nX7z8XhL5S4QIEHAg4EHAg4EDAgYADAQcCDgQcCDgQAg4EHAg4EHAg4EDAgYADAQcCDgQcCAEHAg4EHAg4EHAg4EDaOsZa/v72/PNffnn9GOiipyEfUt+EArjkw3E6ENNACYSjjYl4SnLg2MhEKiUJcEhhkYSINxyyWGQg4gqHBRbuiPjBYYeFLyIFGbTfPnK4Y+EYQgoysMg1cuRhYRRCCjKw0Q+OCWSIW6o4rMzBQnyIkYOjk4wfdoZgkybCsbobTnG9RSPT4Fjn9EXutmuwKxwrHN3mYuvGq8ORcYYv7yTifjjO9el2hyaZc7AOXNGMjNX45shxihNlM9Du1hW+G75yVoQjnowAPg5mGMxCtCLHg55yPI/5YJu3sFWQAR8hZ0jdvwThgPEq/DM+I3vEiubgUZABH96rlXVkXPX1oke/vH7or1/6MqR3++L07qEl3Oxzfkz+/PM5t/w0RY69r8iiAL63bQ2MFrnnCzsAGyPHfU583GtG1z7tctHQqyY71wKp31JUZNjo760tewKrzSxiBvHDCQ6jBHN2CriSXiaFdzfJ5IoJGzpRXTzvOW7OoTbeZ8w/SspBmpN28WXaOvMpqYFy4VAO4O6Dy2E9FT3L+18++pR//v72fKtdOkc9Di6evvpTfVvuQJA5xzmBamaZJiE4OseUl9ePO0J9ZwJGBMciYFCRKQ2OXQcgkjIxRA4kBofmi3LWoKA5uKzw+THkI8Grj/jHuVdXuQ0XTm5/x4qs6Jf/sOERzDmMURt7y/YsOL4ZI74n4JufTljWFjGDW/qBAwEHAg4EHAg4hJNvY/frp8Bx94r07jUwcITHj8kxwxiO07vt/3/Y8IgLB4w3HoG86RE3NaBhTFEYtmrOVaxnuTv7QAJzDhQNx67jepr3MwHH/sFl2iZc+fbZI98K3Pq4O/5E89toIsfJHTB21/4IPgL5815f962s9SHchfeQ9owU4l3YY9EiOIpyshdK7zDnQEJwtI0Rmi9oWyZmnfnF59EMKDZwBNzTGHBbZgcczR2mwEeSyRWW4d7Lh+/F3FNWK7v4yDs5VpHbp/39tKUGCMV4DPhIPW0qXQBQvMbb3hZOLwAoXmFPn12KDhvTRtFhuYlITD2UnMih2Su7atlbMHq4nNpa5JFdwcDiJFGRQCQFrLJagQ+jzYGi9A7tF4LDrtq0ddVqv8gxkA87MozzHJ++tkg8+Ia6st4YM/o0xnG9Xe4bp/HVITdGx9YMaX+FR4xib0VoFpKUrNsfOVY4dAsiGVbIwbHohWtzrnXjDeBYGpAXOdquwcZwNAzYFusjnZm1FhzNE7ofdoNgk4bCMfkmHbWEryIcAxHR3Aco/IWlluc5JvChbKPusBI/xOijX/gRi7wjR1IIMQK98CztD4kcviHEEWtXOIwQ8Y123nCII+I+CCbAIYhIxvIqBw4FSsKW3IFw9FPCtU+AMi61PwWOB3GZWYB4LhzoQkkNBBwIOBBwIOBAwIGAAwEHAg4EHLgAAQcCDgQcCDgQcCDgQMCBgAMBBwIOhIADAQcCDgQcCDgQcCAP/QU5Y6krV6UDOAAAAABJRU5ErkJggg==">
+<title>ยิงแอดสำเร็จรูป</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f4f7;--card:#fff;--ink:#1c1e21;--mute:#65676b;--line:#dfe1e6;--blue:#1877f2;--blue-d:#0f5fcc;--green:#1a8f4c;--green-bg:#e8f6ee;--red:#c62828;--red-bg:#fdecea;--amber:#9a5b00;--amber-bg:#fff4e0;--r:12px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:860px;margin:0 auto;padding:calc(20px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(60px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left))}
+html{-webkit-text-size-adjust:100%}
+button,a,label,.pcard{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+header h1{font-size:22px;margin:0;font-weight:600}
+header .sp{flex:1}
+.pill{font-size:12.5px;padding:4px 10px;border-radius:99px;background:#e7f0fd;color:var(--blue-d)}
+.pill.off{background:#eceef1;color:var(--mute)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-bottom:16px}
+.card h2{font-size:16.5px;margin:0 0 12px;font-weight:600}
+.muted{color:var(--mute);font-size:13.5px}
+label.f{display:block;font-size:13.5px;color:var(--mute);margin:12px 0 4px}
+input[type=text],input[type=password],input[type=number],input[type=date],input[type=datetime-local],select{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:8px;font:inherit;font-size:16px;background:#fff;color:inherit;min-height:44px;-webkit-appearance:none;appearance:none}
+input:focus,select:focus{outline:2px solid #b9d3fb;border-color:var(--blue)}
+button{font:inherit;border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 14px;cursor:pointer;color:inherit;min-height:40px}
+button.x{min-height:36px;min-width:36px}
+#btnShoot{position:sticky;bottom:calc(10px + env(safe-area-inset-bottom));z-index:5;box-shadow:0 6px 18px rgba(24,119,242,.35)}
+button:hover{background:#f2f3f5}
+button.pri{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:600}
+button.pri:hover{background:var(--blue-d)}
+button.big{padding:12px 20px;font-size:16px;width:100%}
+button:disabled{opacity:.55;cursor:not-allowed}
+button.link{border:none;background:none;color:var(--blue-d);padding:4px 6px}
+button.x{border:none;background:none;color:var(--mute);font-size:18px;padding:2px 8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.adrow{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px;display:grid;grid-template-columns:34px 1fr 1fr 30px;gap:10px;align-items:start}
+.adrow .n{font-weight:600;color:var(--mute);padding-top:30px;text-align:center}
+.adrow.done{background:#fafbfc}
+.adrow .st{grid-column:2/5;font-size:13.5px}
+.prev{display:flex;gap:8px;margin-top:6px;font-size:12.5px;color:var(--mute)}
+.prev img{width:44px;height:44px;object-fit:cover;border-radius:6px;flex:none}
+.ok{color:var(--green)} .err{color:var(--red)} .run{color:var(--amber)}
+.box{border-radius:8px;padding:10px 12px;font-size:13.5px;margin-top:10px}
+.box.ok{background:var(--green-bg)} .box.err{background:var(--red-bg)} .box.warn{background:var(--amber-bg);color:var(--amber)}
+.toggle{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.toggle input{display:none}
+.sw{width:44px;height:24px;border-radius:99px;background:#c9ccd1;position:relative;transition:.15s;flex:none}
+.sw::after{content:"";position:absolute;width:20px;height:20px;border-radius:50%;background:#fff;top:2px;left:2px;transition:.15s}
+.toggle input:checked+.sw{background:var(--green)}
+.toggle input:checked+.sw::after{left:22px}
+.sched{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.sched:last-child{border-bottom:none}
+details{margin-top:6px}
+summary{cursor:pointer;color:var(--blue-d)}
+pre{white-space:pre-wrap;word-break:break-all;background:#f6f7f9;border-radius:8px;padding:10px;font-size:12px;max-height:240px;overflow:auto}
+ol.guide li{margin-bottom:6px}
+.banner{background:var(--amber-bg);border:1px solid #f0c987;color:#6b4000;border-radius:var(--r);padding:14px 16px;margin-bottom:16px}
+.hidden{display:none!important}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.seg button{border:none;border-radius:0;padding:8px 14px}
+.seg button.on{background:var(--blue);color:#fff;font-weight:600}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin-top:10px}
+.pcard{border:1px solid var(--line);border-radius:10px;overflow:hidden;cursor:pointer;position:relative;background:#fff}
+.pcard.sel{outline:3px solid var(--blue);border-color:var(--blue)}
+.pcard.used{opacity:.55;cursor:default}
+.pcard img,.pcard .noimg{width:100%;height:150px;object-fit:cover;display:block;background:#eceef1}
+.pcard .t{padding:8px 10px;font-size:12.5px;line-height:1.45}
+.pcard .t b{font-size:13px}
+.pcard .ck{position:absolute;top:8px;left:8px;width:26px;height:26px;border-radius:50%;background:#fff;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff}
+.pcard.sel .ck{background:var(--blue);border-color:var(--blue)}
+.flex{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+@media(max-width:640px){
+ header h1{font-size:19px} header{flex-wrap:wrap}
+ .card{padding:14px;border-radius:14px}
+ .row2{grid-template-columns:1fr;gap:0}
+ .adrow{grid-template-columns:24px minmax(0,1fr) 36px;gap:8px;padding:10px}
+ .adrow .n{grid-column:1;grid-row:1 / span 2;padding-top:28px}
+ .adrow .del{grid-column:3;grid-row:1}
+ .adrow>div:nth-child(2){grid-column:2;grid-row:1}
+ .adrow .nm{grid-column:2;grid-row:2}
+ .adrow .st{grid-column:1 / 4}
+ .pgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .pcard img,.pcard .noimg{height:130px}
+ .seg{display:flex;width:100%}.seg button{flex:1;padding:10px 6px;font-size:14.5px}
+ .sched{flex-wrap:wrap}
+ .flex>button{flex:0 0 auto}
+ #arcList{max-height:50vh}
+ pre{font-size:11px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>ยิงแอดสำเร็จรูป</h1>
+    <span id="connPill" class="pill off">ยังไม่ได้ตั้งค่า</span>
+    <span class="sp"></span>
+    <button id="btnSettings">⚙ ตั้งค่า</button>
+  </header>
+
+  <div id="overdueBanner" class="banner hidden">
+    <b>มีแอดที่เลยเวลาเผยแพร่แล้วแต่ยังไม่ได้เปิด</b> (ตอนนั้นโปรแกรมถูกปิดอยู่)
+    <div id="overdueList" class="muted" style="margin:6px 0 10px"></div>
+    <div class="flex"><button class="pri" id="btnOverdueGo">เปิดแอดเหล่านี้ตอนนี้</button><button id="btnOverdueCancel">ไม่ต้อง ปล่อยปิดไว้</button></div>
+  </div>
+
+  <!-- ============ SETTINGS ============ -->
+  <section id="settings" class="hidden">
+    <div class="card">
+      <h2>1. เชื่อมต่อ Facebook</h2>
+      <label class="f">Access Token (แนะนำ Token ของผู้ใช้ระบบแบบไม่หมดอายุ — ดูวิธีสร้างด้านล่าง)</label>
+      <input type="password" id="inToken" placeholder="วาง Token ที่นี่" autocomplete="off">
+      <div class="row2">
+        <div><label class="f">Graph API version</label><input type="text" id="inVer" value="v24.0"></div>
+        <div style="display:flex;align-items:end"><button class="pri" id="btnConnect" style="width:100%">เชื่อมต่อและโหลดข้อมูล</button></div>
+      </div>
+      <div id="connMsg"></div>
+      <details>
+        <summary>วิธีสร้าง Token แบบไม่หมดอายุ (ทำครั้งเดียว)</summary>
+        <ol class="guide">
+          <li>สร้างแอปที่ <b>developers.facebook.com</b> → My Apps → Create App → เลือกประเภท <b>Business</b> แล้วผูกกับ Business Manager ของคุณ (ตั้งชื่ออะไรก็ได้ เช่น AdShooter)</li>
+          <li>ไปที่ <b>business.facebook.com</b> → การตั้งค่าธุรกิจ → ผู้ใช้ → <b>ผู้ใช้ระบบ (System users)</b> → เพิ่ม → ตั้งชื่อ บทบาท <b>ผู้ดูแล (Admin)</b></li>
+          <li>ที่ผู้ใช้ระบบนั้น กด <b>กำหนดสินทรัพย์ (Assign assets)</b>: เพิ่ม <b>บัญชีโฆษณา</b> (ให้สิทธิ์ควบคุมเต็ม) และ <b>เพจ</b> (ให้สิทธิ์ควบคุมเต็ม) และ <b>แอป</b> ที่สร้างในข้อ 1</li>
+          <li>กด <b>สร้างโทเค็นใหม่ (Generate new token)</b> → เลือกแอป → วันหมดอายุเลือก <b>ไม่มีวันหมดอายุ (Never)</b></li>
+          <li>ติ๊กสิทธิ์: <code>ads_management</code>, <code>ads_read</code>, <code>business_management</code>, <code>pages_show_list</code>, <code>pages_read_engagement</code>, <code>pages_manage_ads</code> → สร้าง แล้วคัดลอก Token มาวางช่องด้านบน</li>
+        </ol>
+        <p class="muted">ชื่อเมนูใน Facebook อาจต่างจากนี้เล็กน้อยตามเวอร์ชันหน้าจอ Token เก็บไว้ในเบราว์เซอร์บนเครื่องนี้เท่านั้น อย่าส่งไฟล์นี้หลังใส่ Token ให้คนอื่น และอย่าแชร์ Token ให้ใคร</p>
+      </details>
+    </div>
+
+    <div class="card" id="pickCard">
+      <h2>2. เลือกบัญชี / แคมเปญ / ชุดโฆษณาหลัก</h2>
+      <div class="row2">
+        <div><label class="f">บัญชีโฆษณา</label><select id="selAcct" disabled></select></div>
+        <div><label class="f">เพจ</label><select id="selPage" disabled></select></div>
+      </div>
+      <label class="f">แคมเปญหลัก</label><select id="selCamp" disabled></select>
+      <label class="f">ชุดโฆษณาหลัก</label><select id="selAdset" disabled></select>
+    </div>
+
+    <div class="card">
+      <h2>3. แอดต้นแบบ (ใช้ดึงเทมเพลตการสนทนา)</h2>
+      <p class="muted" style="margin:0">เลือกแอดสักตัวในชุดโฆษณานี้ที่คุณเคยสร้างเองโดยใช้เทมเพลต <b>“เริ่มการสนทนา 22/10/2026”</b> และปุ่มส่งข้อความ Messenger โปรแกรมจะคัดลอกข้อความทักทาย คำถามอัตโนมัติ และปุ่ม ไปใช้กับแอดใหม่ทุกตัว</p>
+      <label class="f">แอดต้นแบบ</label><select id="selTmplAd" disabled></select>
+      <div id="tmplPreview"></div>
+    </div>
+
+    <div class="flex">
+      <button class="pri" id="btnSaveSettings">บันทึกการตั้งค่า</button>
+      <button id="btnCloseSettings">ปิด</button>
+      <span class="sp" style="flex:1"></span>
+      <button class="link" id="btnForget" style="color:var(--red)">ลบ Token และการตั้งค่าออกจากเครื่องนี้</button>
+    </div>
+  </section>
+
+  <!-- ============ MAIN ============ -->
+  <section id="main" class="hidden">
+    <div class="card">
+      <div id="summary" class="muted"></div>
+    </div>
+
+    <div class="card">
+      <h2>แอดที่จะยิงรอบนี้</h2>
+      <div class="row2">
+        <div><label class="f">วันที่ (ใช้ตั้งชื่อแอด)</label><input type="date" id="inDate"></div>
+        <div><label class="f">โพสต์รอบที่ (รอบ 2 ขึ้นไปจะต่อท้ายชื่อเป็น (2))</label><input type="number" id="inRound" min="1" value="1"></div>
+      </div>
+      <div class="seg" style="margin-top:14px">
+        <button id="modeManual" class="on">กรอก ID โพสต์เอง</button>
+        <button id="modePick">เลือกจากโพสต์ของวันที่</button>
+      </div>
+      <div id="pickWrap" class="hidden" style="margin-top:12px">
+        <div class="flex"><button id="btnFetchPosts">ดึงโพสต์ของวันที่เลือก</button><span id="pickMsg" class="muted"></span></div>
+        <div id="pickList" class="pgrid"></div>
+      </div>
+      <div id="rows" style="margin-top:14px"></div>
+      <div class="flex">
+        <button id="btnAdd">+ เพิ่มแอด</button>
+        <button class="link" id="btnResetNames">ตั้งชื่ออัตโนมัติใหม่ทั้งหมด</button>
+        <span style="flex:1"></span>
+        <button class="link" id="btnClearDone">ล้างแถวที่ยิงสำเร็จแล้ว</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>การเผยแพร่ (ใช้กับทุกแอดในรอบนี้)</h2>
+      <label class="toggle"><input type="checkbox" id="chkNow" checked><span class="sw"></span><span id="nowLabel"><b>เปิดทำงานทันที</b></span></label>
+      <div id="whenWrap" class="hidden">
+        <label class="f">ตั้งเวลาเผยแพร่</label>
+        <input type="datetime-local" id="inWhen">
+        <div class="box warn">แอดจะถูกสร้างไว้แบบ <b>ปิด</b> ทันที แล้วโปรแกรมจะกดเปิดให้เมื่อถึงเวลา — <b>ต้องเปิดหน้านี้ทิ้งไว้และคอมพิวเตอร์ต้องไม่หลับ</b> จนถึงเวลานั้น</div>
+      </div>
+    </div>
+
+    <button class="pri big" id="btnShoot">ยิงแอด</button>
+    <div id="shootMsg"></div>
+
+    <div class="card" id="schedCard" style="margin-top:16px">
+      <h2>รอเผยแพร่ตามเวลา</h2>
+      <div id="schedList"></div>
+    </div>
+
+    <div class="card" id="arcCard">
+      <h2>จัดการแอดในชุดโฆษณา</h2>
+      <div class="flex">
+        <span id="arcCount" class="muted">ชุดโฆษณามีแอดได้สูงสุด 50 ตัว (นับรวมแอดที่ปิดอยู่ ไม่นับแอดที่เก็บถาวรแล้ว)</span>
+        <span style="flex:1"></span>
+        <button id="btnArcLoad">ตรวจจำนวน / เก็บถาวรแอดเก่า</button>
+      </div>
+      <div id="arcPanel" class="hidden">
+        <div class="flex" style="margin:12px 0">
+          <span>เลือกแอดที่เก่ากว่า</span>
+          <input type="number" id="arcDays" value="7" min="0" style="width:80px">
+          <span>วัน</span>
+          <button id="btnArcPick">เลือก</button>
+          <button class="link" id="btnArcNone">ไม่เลือกทั้งหมด</button>
+        </div>
+        <div id="arcList" style="max-height:380px;overflow:auto;border:1px solid var(--line);border-radius:8px"></div>
+        <div class="box warn">แอดที่เก็บถาวรแล้วจะหยุดทำงาน และ <b>แก้ไขหรือกู้คืนกลับมาไม่ได้</b> (ยังดูสถิติย้อนหลังได้ใน Ads Manager)</div>
+        <div class="flex" style="margin-top:10px">
+          <button class="pri" id="btnArcGo" disabled>เก็บถาวรแอดที่เลือก</button>
+          <span id="arcMsg"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+const KEY = 'adshooter.v1';
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+// ---------- storage ----------
+function load(){ try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch(e){ return {}; } }
+let S = Object.assign({ver:'v24.0', token:'', account:null, page:null, campaign:null, adset:null, templateAd:null, tmpl:null, schedule:[]}, load());
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){ console.warn('save failed', e); } }
+
+// ---------- Graph API ----------
+class GErr extends Error { constructor(e){ super(e.error_user_msg || e.message || 'Graph API error'); this.raw = e; } }
+async function gapi(path, params = {}, method = 'GET', token, ver){
+  token = token || D.token || S.token; ver = ver || D.ver || S.ver;
+  const url = new URL(`https://graph.facebook.com/${ver}/${path}`);
+  const enc = v => (typeof v === 'object' ? JSON.stringify(v) : String(v));
+  let opts = {method};
+  if (method === 'GET'){
+    for (const [k,v] of Object.entries(params)) url.searchParams.set(k, enc(v));
+    url.searchParams.set('access_token', token);
+  } else {
+    const b = new URLSearchParams();
+    for (const [k,v] of Object.entries(params)) b.set(k, enc(v));
+    b.set('access_token', token);
+    opts.body = b;
+  }
+  let r;
+  try { r = await fetch(url, opts); } catch(e){ throw new Error('เชื่อมต่อ Facebook ไม่ได้ (ตรวจอินเทอร์เน็ต)'); }
+  const j = await r.json().catch(() => ({}));
+  if (j.error) throw new GErr(j.error);
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return j;
+}
+async function gall(path, params, token){
+  let out = [], j = await gapi(path, Object.assign({limit: 100}, params), 'GET', token), guard = 0;
+  out = out.concat(j.data || []);
+  while (j.paging && j.paging.next && guard++ < 20){
+    const r = await fetch(j.paging.next); j = await r.json();
+    if (j.error) throw new GErr(j.error);
+    out = out.concat(j.data || []);
+  }
+  return out;
+}
+
+// ---------- view switching ----------
+function show(view){
+  $('#settings').classList.toggle('hidden', view !== 'settings');
+  $('#main').classList.toggle('hidden', view !== 'main');
+}
+function configured(){ return S.token && S.account && S.page && S.campaign && S.adset && S.tmpl; }
+function renderHeader(){
+  const p = $('#connPill');
+  if (configured()){ p.textContent = 'พร้อมใช้งาน · ' + S.page.name; p.className = 'pill'; }
+  else { p.textContent = 'ยังไม่ได้ตั้งค่า'; p.className = 'pill off'; }
+}
+
+// ---------- SETTINGS ----------
+// D = draft while editing settings
+let D = {};
+function fill(sel, items, label, selectedId, placeholder){
+  sel.innerHTML = `<option value="">${esc(placeholder || '— เลือก —')}</option>` +
+    items.map(i => `<option value="${esc(i.id)}"${i.id === selectedId ? ' selected' : ''}>${esc(label(i))}</option>`).join('');
+  sel.disabled = false;
+}
+const stTh = s => ({ACTIVE:'เปิด', PAUSED:'ปิด', ARCHIVED:'เก็บถาวร', DELETED:'ลบแล้ว', CAMPAIGN_PAUSED:'แคมเปญปิด', ADSET_PAUSED:'ชุดโฆษณาปิด', WITH_ISSUES:'มีปัญหา', DISAPPROVED:'ไม่ผ่าน', PENDING_REVIEW:'รอตรวจ'}[s] || s || '');
+
+function openSettings(){
+  D = {token: S.token, ver: S.ver, account: S.account, page: S.page, campaign: S.campaign, adset: S.adset, templateAd: S.templateAd, tmpl: S.tmpl,
+       accounts: [], pages: [], campaigns: [], adsets: [], ads: []};
+  $('#inToken').value = S.token || '';
+  $('#inVer').value = S.ver || 'v24.0';
+  $('#connMsg').innerHTML = '';
+  ['#selAcct','#selPage','#selCamp','#selAdset','#selTmplAd'].forEach(s => { $(s).innerHTML = ''; $(s).disabled = true; });
+  $('#tmplPreview').innerHTML = S.tmpl ? tmplHtml(S.tmpl) : '';
+  if (configured()){
+    $('#connMsg').innerHTML = `<div class="box ok">ตั้งค่าปัจจุบัน: ${esc(S.account.name)} · ${esc(S.page.name)} · แคมเปญ “${esc(S.campaign.name)}” · ชุดโฆษณา “${esc(S.adset.name)}”<br>กด “เชื่อมต่อและโหลดข้อมูล” หากต้องการเปลี่ยน</div>`;
+  }
+  show('settings');
+}
+
+async function connect(){
+  D.token = $('#inToken').value.trim(); D.ver = $('#inVer').value.trim() || 'v24.0';
+  const msg = $('#connMsg');
+  if (!D.token){ msg.innerHTML = '<div class="box err">กรุณาวาง Token</div>'; return; }
+  msg.innerHTML = '<div class="box warn">กำลังเชื่อมต่อ...</div>';
+  try {
+    const me = await gapi('me', {fields: 'id,name'});
+    const [accts, pages] = await Promise.all([
+      gall('me/adaccounts', {fields: 'id,name,account_id,currency,account_status'}),
+      gall('me/accounts', {fields: 'id,name,access_token'})
+    ]);
+    D.accounts = accts; D.pages = pages;
+    msg.innerHTML = `<div class="box ok">เชื่อมต่อแล้วในชื่อ <b>${esc(me.name)}</b> — พบบัญชีโฆษณา ${accts.length} บัญชี, เพจ ${pages.length} เพจ</div>`;
+    fill($('#selAcct'), accts, a => `${a.name} (${a.account_id})`, D.account && D.account.id);
+    fill($('#selPage'), pages, p => p.name, D.page && D.page.id);
+    if (accts.length === 1 && !$('#selAcct').value) $('#selAcct').value = accts[0].id;
+    if (pages.length === 1 && !$('#selPage').value) $('#selPage').value = pages[0].id;
+    onPage(); await onAcct();
+  } catch(e){
+    msg.innerHTML = `<div class="box err">เชื่อมต่อไม่สำเร็จ: ${esc(e.message)}</div>`;
+  }
+}
+function onPage(){
+  const p = D.pages.find(x => x.id === $('#selPage').value);
+  D.page = p ? {id: p.id, name: p.name, token: p.access_token || ''} : null;
+}
+async function onAcct(){
+  const a = D.accounts.find(x => x.id === $('#selAcct').value);
+  D.account = a ? {id: a.id, name: a.name} : null;
+  ['#selCamp','#selAdset','#selTmplAd'].forEach(s => { $(s).innerHTML = ''; $(s).disabled = true; });
+  if (!D.account) return;
+  try {
+    D.campaigns = await gall(`${D.account.id}/campaigns`, {fields: 'id,name,effective_status,objective'});
+    fill($('#selCamp'), D.campaigns, c => `${c.name}  [${stTh(c.effective_status)}]`, D.campaign && D.campaign.id);
+    await onCamp();
+  } catch(e){ $('#connMsg').innerHTML = `<div class="box err">โหลดแคมเปญไม่ได้: ${esc(e.message)}</div>`; }
+}
+async function onCamp(){
+  const c = D.campaigns.find(x => x.id === $('#selCamp').value);
+  D.campaign = c ? {id: c.id, name: c.name} : null;
+  ['#selAdset','#selTmplAd'].forEach(s => { $(s).innerHTML = ''; $(s).disabled = true; });
+  if (!D.campaign) return;
+  try {
+    D.adsets = await gall(`${D.campaign.id}/adsets`, {fields: 'id,name,effective_status,destination_type'});
+    fill($('#selAdset'), D.adsets, a => `${a.name}  [${stTh(a.effective_status)}]`, D.adset && D.adset.id);
+    if (D.adsets.length === 1 && !$('#selAdset').value) $('#selAdset').value = D.adsets[0].id;
+    await onAdset();
+  } catch(e){ $('#connMsg').innerHTML = `<div class="box err">โหลดชุดโฆษณาไม่ได้: ${esc(e.message)}</div>`; }
+}
+async function onAdset(){
+  const a = D.adsets.find(x => x.id === $('#selAdset').value);
+  D.adset = a ? {id: a.id, name: a.name} : null;
+  $('#selTmplAd').innerHTML = ''; $('#selTmplAd').disabled = true;
+  if (!D.adset) return;
+  try {
+    D.ads = await gall(`${D.adset.id}/ads`, {fields: 'id,name,effective_status,created_time,creative{id}'});
+    D.ads.sort((x, y) => (y.created_time || '').localeCompare(x.created_time || ''));
+    fill($('#selTmplAd'), D.ads, a => `${a.name}  [${stTh(a.effective_status)}]`, D.templateAd && D.templateAd.id, '— เลือกแอดต้นแบบ —');
+    if ($('#selTmplAd').value) await onTmpl();
+  } catch(e){ $('#connMsg').innerHTML = `<div class="box err">โหลดแอดไม่ได้: ${esc(e.message)}</div>`; }
+}
+async function onTmpl(){
+  const ad = D.ads.find(x => x.id === $('#selTmplAd').value);
+  const box = $('#tmplPreview');
+  D.templateAd = ad ? {id: ad.id, name: ad.name} : null; D.tmpl = null;
+  if (!ad){ box.innerHTML = ''; return; }
+  if (!ad.creative){ box.innerHTML = '<div class="box err">แอดนี้ไม่มีชิ้นงานให้คัดลอก</div>'; return; }
+  box.innerHTML = '<div class="box warn">กำลังอ่านแอดต้นแบบ...</div>';
+  const full = 'id,name,object_story_id,effective_object_story_id,call_to_action_type,page_welcome_message,object_type';
+  let cr;
+  try { cr = await gapi(ad.creative.id, {fields: full}); }
+  catch(e){
+    try { cr = await gapi(ad.creative.id, {fields: 'id,name,object_story_id,effective_object_story_id,call_to_action_type'}); }
+    catch(e2){ box.innerHTML = `<div class="box err">อ่านแอดต้นแบบไม่ได้: ${esc(e2.message)}</div>`; return; }
+  }
+  D.tmpl = {creative_id: cr.id, call_to_action_type: cr.call_to_action_type || '', page_welcome_message: cr.page_welcome_message || '', raw: cr};
+  box.innerHTML = tmplHtml(D.tmpl);
+}
+function collectTexts(o, out = [], depth = 0){
+  if (!o || depth > 8) return out;
+  if (Array.isArray(o)){ o.forEach(x => collectTexts(x, out, depth + 1)); return out; }
+  if (typeof o === 'object'){
+    for (const [k, v] of Object.entries(o)){
+      if (typeof v === 'string' && /^(text|title|message|greeting)$/i.test(k) && v.trim()) out.push(v.trim());
+      else if (typeof v === 'object') collectTexts(v, out, depth + 1);
+    }
+  }
+  return out;
+}
+function tmplHtml(t){
+  let wm = null;
+  try { wm = t.page_welcome_message ? JSON.parse(t.page_welcome_message) : null; } catch(e){}
+  const texts = wm ? [...new Set(collectTexts(wm))] : [];
+  const cta = t.call_to_action_type;
+  const ctaOk = /MESSAGE/i.test(cta || '');
+  let h = `<div class="box ${t.page_welcome_message && ctaOk ? 'ok' : 'warn'}">`;
+  h += `ปุ่ม: <b>${esc(cta || 'ไม่พบ')}</b>${ctaOk ? ' ✓' : ' — ⚠ ไม่ใช่ปุ่มส่งข้อความ ลองเลือกแอดตัวอื่น'}<br>`;
+  if (t.page_welcome_message){
+    h += 'เทมเพลตการสนทนา: <b>พบแล้ว ✓</b>';
+    if (texts.length) h += '<ul style="margin:6px 0 0;padding-left:20px">' + texts.slice(0, 8).map(x => `<li>${esc(x)}</li>`).join('') + '</ul>';
+  } else {
+    h += '⚠ <b>ไม่พบเทมเพลตการสนทนาในแอดนี้</b> — แอดใหม่จะไม่มีข้อความทักทาย ลองเลือกแอดที่สร้างด้วยเทมเพลต “เริ่มการสนทนา 22/10/2026”';
+  }
+  h += `</div><details><summary>ข้อมูลดิบของแอดต้นแบบ (สำหรับตรวจปัญหา)</summary><pre>${esc(JSON.stringify(t.raw || t, null, 2))}</pre></details>`;
+  return h;
+}
+function saveSettings(){
+  onPage();
+  const miss = [];
+  if (!D.token) miss.push('Token'); if (!D.account) miss.push('บัญชีโฆษณา'); if (!D.page) miss.push('เพจ');
+  if (!D.campaign) miss.push('แคมเปญ'); if (!D.adset) miss.push('ชุดโฆษณา'); if (!D.tmpl) miss.push('แอดต้นแบบ');
+  if (miss.length){ $('#connMsg').innerHTML = `<div class="box err">ยังไม่ได้เลือก: ${miss.join(', ')}</div>`; window.scrollTo(0, 0); return; }
+  Object.assign(S, {token: D.token, ver: D.ver, account: D.account, page: D.page, campaign: D.campaign, adset: D.adset, templateAd: D.templateAd, tmpl: D.tmpl});
+  save(); D = {}; renderHeader(); openMain();
+}
+function forget(){
+  if (S.schedule.length && !window.__forgetArmed){ window.__forgetArmed = true; $('#btnForget').textContent = 'มีแอดรอตั้งเวลาอยู่ — กดอีกครั้งเพื่อยืนยันลบ'; return; }
+  try { localStorage.removeItem(KEY); } catch(e){}
+  location.reload();
+}
+
+// ---------- MAIN ----------
+let rows = [];
+let uid = 0;
+const newRow = () => ({k: ++uid, post: '', name: '', manual: false, done: false, st: '', stc: '', prev: null});
+function ddmmyy(iso){ if (!iso) return ''; const [y, m, d] = iso.split('-'); return `${d}/${m}/${y.slice(2)}`; }
+function todayISO(){ const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); }
+function autoName(i, n){
+  const r = parseInt($('#inRound').value, 10) || 1;
+  return `${ddmmyy($('#inDate').value)} ${i + 1}/${n}` + (r > 1 ? ` (${r})` : '');
+}
+function updateNames(){
+  const n = rows.length;
+  rows.forEach((r, i) => {
+    if (!r.manual && !r.done){ r.name = autoName(i, n); const el = document.querySelector(`[data-name="${r.k}"]`); if (el) el.value = r.name; }
+  });
+}
+function parsePost(v){
+  v = (v || '').trim();
+  if (!v) return null;
+  let m;
+  if (/pfbid/i.test(v)) return {err: 'ลิงก์แบบ pfbid ใช้ไม่ได้ กรุณาใส่ ID โพสต์ที่เป็นตัวเลข'};
+  if ((m = v.match(/^(\d+)_(\d+)$/))) return {story: v, pageMismatch: m[1] !== S.page.id};
+  if ((m = v.match(/(?:posts|videos|reel|permalink)\/(\d{6,})/)) || (m = v.match(/(?:story_fbid|fbid|v)=(\d{6,})/))) return {story: `${S.page.id}_${m[1]}`};
+  if ((m = v.match(/^\d{6,}$/))) return {story: `${S.page.id}_${v}`};
+  return {err: 'รูปแบบ ID โพสต์ไม่ถูกต้อง'};
+}
+function renderRows(){
+  const box = $('#rows');
+  box.innerHTML = rows.map((r, i) => `
+    <div class="adrow ${r.done ? 'done' : ''}" data-k="${r.k}">
+      <div class="n">${i + 1}</div>
+      <div><label class="f" style="margin-top:0">ID โพสต์</label>
+        <input type="text" data-post="${r.k}" value="${esc(r.post)}" placeholder="เช่น 1234567890 หรือ ลิงก์โพสต์" ${r.done ? 'disabled' : ''}>
+        <div class="prev" data-prev="${r.k}">${prevHtml(r.prev)}</div></div>
+      <div class="nm"><label class="f" style="margin-top:0">ชื่อแอด</label>
+        <input type="text" data-name="${r.k}" value="${esc(r.name)}" ${r.done ? 'disabled' : ''}></div>
+      <div class="del" style="padding-top:24px">${r.done ? '' : `<button class="x" data-del="${r.k}" title="ลบแถว">×</button>`}</div>
+      <div class="st ${r.stc}" data-st="${r.k}">${r.st}</div>
+    </div>`).join('');
+}
+function prevHtml(p){
+  if (!p) return '';
+  if (p.err) return `<span class="err">${esc(p.err)}</span>`;
+  const msg = (p.message || '(ไม่มีข้อความ)').replace(/\s+/g, ' ').slice(0, 90);
+  return (p.full_picture ? `<img src="${esc(p.full_picture)}" alt="">` : '') + `<span>${esc(msg)}${p.created_time ? '<br>โพสต์เมื่อ ' + esc(new Date(p.created_time).toLocaleString('th-TH')) : ''}</span>`;
+}
+async function previewRow(r){
+  const el = document.querySelector(`[data-prev="${r.k}"]`);
+  const p = parsePost(r.post);
+  if (!p){ r.prev = null; if (el) el.innerHTML = ''; return; }
+  if (p.err){ r.prev = {err: p.err}; if (el) el.innerHTML = prevHtml(r.prev); return; }
+  if (p.pageMismatch){ r.prev = {err: 'โพสต์นี้ไม่ได้อยู่ในเพจที่ตั้งค่าไว้'}; if (el) el.innerHTML = prevHtml(r.prev); return; }
+  if (el) el.innerHTML = '<span class="run">กำลังตรวจโพสต์...</span>';
+  try {
+    const j = await gapi(p.story, {fields: 'message,full_picture,created_time'}, 'GET', S.page.token || S.token);
+    r.prev = j;
+  } catch(e){
+    r.prev = {err: 'ตรวจโพสต์ไม่ได้: ' + e.message + ' (ถ้า ID ถูกต้องก็ยังยิงได้)'};
+  }
+  const el2 = document.querySelector(`[data-prev="${r.k}"]`); if (el2) el2.innerHTML = prevHtml(r.prev);
+}
+function setSt(r, cls, html){ r.stc = cls; r.st = html; const el = document.querySelector(`[data-st="${r.k}"]`); if (el){ el.className = 'st ' + cls; el.innerHTML = html; } }
+
+function openMain(){
+  show('main');
+  $('#summary').innerHTML = `ยิงเข้า: <b>${esc(S.account.name)}</b> › แคมเปญ <b>${esc(S.campaign.name)}</b> › ชุดโฆษณา <b>${esc(S.adset.name)}</b><br>เพจ ${esc(S.page.name)} · ใช้เทมเพลตจากแอดต้นแบบ “${esc(S.templateAd ? S.templateAd.name : '-')}” · ปุ่ม ${esc(S.tmpl.call_to_action_type || '-')}`;
+  if (!$('#inDate').value) $('#inDate').value = todayISO();
+  if (!rows.length){ rows = [newRow()]; updateNames(); }
+  renderRows(); renderSched();
+  setMode(S.mode || 'manual');
+  liveAds().then(l => { $('#arcCount').innerHTML = arcCountText(l.length); }).catch(() => {});
+}
+function defaultWhen(){
+  const d = new Date(Date.now() + 60 * 60 * 1000); d.setMinutes(0, 0, 0);
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+  return d.toISOString().slice(0, 16);
+}
+function updateShootLabel(){
+  const n = rows.filter(r => !r.done).length;
+  const now = $('#chkNow').checked;
+  $('#btnShoot').textContent = n ? `ยิงแอด ${n} ตัว (${now ? 'เปิดทันที' : 'ตั้งเวลาเผยแพร่'})` : 'ไม่มีแอดที่รอยิง';
+  $('#btnShoot').disabled = !n || busy;
+}
+let busy = false;
+async function shoot(){
+  if (busy) return;
+  const todo = rows.filter(r => !r.done);
+  const msg = $('#shootMsg'); msg.innerHTML = '';
+  let bad = 0;
+  for (const r of todo){
+    const p = parsePost(r.post);
+    if (!p){ setSt(r, 'err', 'กรุณาใส่ ID โพสต์'); bad++; }
+    else if (p.err){ setSt(r, 'err', esc(p.err)); bad++; }
+    else if (p.pageMismatch){ setSt(r, 'err', 'โพสต์นี้ไม่ได้อยู่ในเพจที่ตั้งค่าไว้'); bad++; }
+    else if (!r.name.trim()){ setSt(r, 'err', 'กรุณาใส่ชื่อแอด'); bad++; }
+    else setSt(r, '', '');
+  }
+  const stories = todo.map(r => (parsePost(r.post) || {}).story).filter(Boolean);
+  if (new Set(stories).size !== stories.length){ msg.innerHTML = '<div class="box err">มี ID โพสต์ซ้ำกันในรอบนี้</div>'; return; }
+  if (bad){ msg.innerHTML = '<div class="box err">แก้ไขแถวที่มีปัญหาก่อนยิง</div>'; return; }
+  const now = $('#chkNow').checked;
+  let at = null;
+  if (!now){
+    const v = $('#inWhen').value; at = v ? new Date(v).getTime() : NaN;
+    if (!at || isNaN(at)){ msg.innerHTML = '<div class="box err">กรุณาเลือกวันเวลาเผยแพร่</div>'; return; }
+    if (at <= Date.now() + 30000){ msg.innerHTML = '<div class="box err">เวลาเผยแพร่ต้องอยู่ในอนาคต (ถ้าต้องการเปิดเลย ให้เปิดสวิตช์ “เปิดทำงานทันที”)</div>'; return; }
+  }
+  busy = true; updateShootLabel(); $('#btnAdd').disabled = true;
+  try {
+    const live = await liveAds();
+    $('#arcCount').innerHTML = arcCountText(live.length);
+    if (live.length + todo.length > AD_LIMIT){
+      busy = false; $('#btnAdd').disabled = false; updateShootLabel();
+      msg.innerHTML = `<div class="box err">ชุดโฆษณามีแอดอยู่ ${live.length}/${AD_LIMIT} ตัว ยิงเพิ่ม ${todo.length} ตัวจะเกินขีดจำกัด — เก็บถาวรแอดเก่าอย่างน้อย ${live.length + todo.length - AD_LIMIT} ตัวก่อน (ปุ่มด้านล่าง)</div>`;
+      $('#arcCard').scrollIntoView({behavior: 'smooth'});
+      return;
+    }
+  } catch(e){ /* ถ้าตรวจจำนวนไม่ได้ ให้ลองยิงต่อ Facebook จะแจ้งเองถ้าเกิน */ }
+  let ok = 0, fail = 0;
+  for (const r of todo){
+    const story = parsePost(r.post).story;
+    try {
+      setSt(r, 'run', 'กำลังสร้างชิ้นงานโฆษณา...');
+      const cb = {name: `${r.name.trim()} - ชิ้นงาน`, object_story_id: story};
+      if (S.tmpl.call_to_action_type) cb.call_to_action_type = S.tmpl.call_to_action_type;
+      if (S.tmpl.page_welcome_message) cb.page_welcome_message = S.tmpl.page_welcome_message;
+      const cr = await gapi(`${S.account.id}/adcreatives`, cb, 'POST');
+      setSt(r, 'run', 'กำลังสร้างแอด...');
+      const ad = await gapi(`${S.account.id}/ads`, {name: r.name.trim(), adset_id: S.adset.id, creative: {creative_id: cr.id}, status: now ? 'ACTIVE' : 'PAUSED'}, 'POST');
+      r.done = true; r.adId = ad.id; ok++;
+      const link = `https://adsmanager.facebook.com/adsmanager/manage/ads?act=${S.account.id.replace('act_', '')}&selected_ad_ids=${ad.id}`;
+      if (now) setSt(r, 'ok', `✓ ยิงสำเร็จ เปิดทำงานแล้ว · Ad ID ${esc(ad.id)} · <a href="${link}" target="_blank" rel="noopener">ดูใน Ads Manager</a>`);
+      else {
+        S.schedule.push({adId: ad.id, name: r.name.trim(), at});
+        save();
+        setSt(r, 'ok', `✓ สร้างแล้ว (ปิดไว้) จะเปิดเวลา ${esc(fmtTime(at))} · <a href="${link}" target="_blank" rel="noopener">ดูใน Ads Manager</a>`);
+      }
+      const rowEl = document.querySelector(`.adrow[data-k="${r.k}"]`);
+      if (rowEl){ rowEl.classList.add('done'); rowEl.querySelectorAll('input').forEach(i => i.disabled = true); const x = rowEl.querySelector('[data-del]'); if (x) x.remove(); }
+    } catch(e){
+      fail++;
+      setSt(r, 'err', '✗ ไม่สำเร็จ: ' + esc(e.message) + (e.raw ? `<details><summary>รายละเอียด</summary><pre>${esc(JSON.stringify(e.raw, null, 2))}</pre></details>` : ''));
+    }
+  }
+  busy = false; $('#btnAdd').disabled = false; updateShootLabel(); renderSched(); renderPicks();
+  msg.innerHTML = `<div class="box ${fail ? 'err' : 'ok'}">สำเร็จ ${ok} ตัว${fail ? ` · ไม่สำเร็จ ${fail} ตัว (แก้แล้วกดยิงใหม่ได้ ระบบจะยิงเฉพาะแถวที่ยังไม่สำเร็จ)` : ''}</div>`;
+}
+
+// ---------- SCHEDULER ----------
+function fmtTime(t){ return new Date(t).toLocaleString('th-TH', {day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'}); }
+function fmtLeft(ms){
+  if (ms <= 0) return 'ถึงเวลาแล้ว';
+  const s = Math.floor(ms / 1000), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), ss = s % 60;
+  return (h ? h + ' ชม. ' : '') + (h || m ? m + ' นาที ' : '') + (h ? '' : ss + ' วิ');
+}
+function renderSched(){
+  const card = $('#schedCard'), list = $('#schedList');
+  const items = S.schedule.filter(s => !s.overdue);
+  card.classList.toggle('hidden', !items.length);
+  list.innerHTML = items.map(s => `
+    <div class="sched"><div><b>${esc(s.name)}</b><br><span class="muted">เปิดเวลา ${esc(fmtTime(s.at))} · อีก <span data-left="${s.adId}">${fmtLeft(s.at - Date.now())}</span>${s.error ? ` · <span class="err">${esc(s.error)}</span>` : ''}</span></div>
+      <div class="flex"><button data-go="${s.adId}">เปิดตอนนี้</button><button class="link" data-cancel="${s.adId}">ยกเลิกเวลา</button></div></div>`).join('')
+    + (items.length ? '<p class="muted" style="margin:10px 0 0">ต้องเปิดหน้านี้ทิ้งไว้ ระบบจะพยายามกันหน้าจอดับให้ แต่ถ้าคอมพิวเตอร์หลับ แอดจะยังไม่ถูกเปิด</p>' : '');
+  const od = S.schedule.filter(s => s.overdue);
+  $('#overdueBanner').classList.toggle('hidden', !od.length);
+  $('#overdueList').innerHTML = od.map(s => `${esc(s.name)} — กำหนดเดิม ${esc(fmtTime(s.at))}${s.error ? ` <span class="err">(${esc(s.error)})</span>` : ''}`).join('<br>');
+  wake(items.length > 0);
+}
+function tickCountdown(){
+  S.schedule.forEach(s => { const el = document.querySelector(`[data-left="${s.adId}"]`); if (el) el.textContent = fmtLeft(s.at - Date.now()); });
+}
+async function activate(s){
+  if (s.busy) return;
+  s.busy = true;
+  try {
+    await gapi(s.adId, {status: 'ACTIVE'}, 'POST');
+    S.schedule = S.schedule.filter(x => x.adId !== s.adId);
+    notice(`✓ เปิดแอด “${s.name}” แล้ว (${fmtTime(Date.now())})`);
+  } catch(e){
+    s.error = 'เปิดไม่สำเร็จ: ' + e.message; s.overdue = true;
+  }
+  s.busy = false; save(); renderSched();
+}
+function notice(t){
+  const el = document.createElement('div'); el.className = 'box ok'; el.innerHTML = esc(t);
+  $('#shootMsg').prepend(el);
+  document.title = '✓ ' + t.slice(0, 40);
+  setTimeout(() => { document.title = 'ยิงแอดสำเร็จรูป'; }, 15000);
+}
+async function tick(){
+  if (!S.token) return;
+  const now = Date.now();
+  for (const s of S.schedule.slice()) if (!s.overdue && !s.busy && s.at <= now) await activate(s);
+}
+let wl = null;
+async function wake(on){
+  try {
+    if (on && !wl && 'wakeLock' in navigator && document.visibilityState === 'visible'){ wl = await navigator.wakeLock.request('screen'); wl.addEventListener('release', () => { wl = null; }); }
+    else if (!on && wl){ await wl.release(); wl = null; }
+  } catch(e){}
+}
+
+// ---------- PICK FROM DATE ----------
+let dayPosts = [];
+function setMode(m){
+  S.mode = m; save();
+  $('#modeManual').classList.toggle('on', m === 'manual');
+  $('#modePick').classList.toggle('on', m === 'pick');
+  $('#pickWrap').classList.toggle('hidden', m !== 'pick');
+  if (m === 'pick') fetchPosts();
+}
+async function fetchPosts(){
+  const iso = $('#inDate').value; if (!iso) return;
+  const [y, m, d] = iso.split('-').map(Number);
+  const since = Math.floor(new Date(y, m - 1, d).getTime() / 1000), until = since + 86400;
+  $('#pickMsg').innerHTML = '<span class="run">กำลังดึงโพสต์...</span>'; $('#pickList').innerHTML = '';
+  try {
+    dayPosts = await gall(`${S.page.id}/posts`, {fields: 'id,message,full_picture,created_time,permalink_url', since, until}, S.page.token || S.token);
+    dayPosts = dayPosts.filter(p => { const t = new Date(p.created_time).getTime() / 1000; return t >= since && t < until; });
+    dayPosts.sort((a, b) => a.created_time.localeCompare(b.created_time));
+    $('#pickMsg').textContent = dayPosts.length ? `พบ ${dayPosts.length} โพสต์ของวันที่ ${ddmmyy(iso)} — คลิกที่โพสต์เพื่อเลือก` : `ไม่พบโพสต์ของวันที่ ${ddmmyy(iso)}`;
+    renderPicks();
+  } catch(e){ $('#pickMsg').innerHTML = `<span class="err">ดึงโพสต์ไม่ได้: ${esc(e.message)}</span>`; }
+}
+function renderPicks(){
+  $('#pickList').innerHTML = dayPosts.map(p => {
+    const row = rows.find(r => r.post === p.id);
+    const used = row && row.done, sel = row && !row.done;
+    const time = new Date(p.created_time).toLocaleTimeString('th-TH', {hour: '2-digit', minute: '2-digit'});
+    const msg = (p.message || '(ไม่มีข้อความ)').replace(/\s+/g, ' ').slice(0, 70);
+    return `<div class="pcard ${sel ? 'sel' : ''} ${used ? 'used' : ''}" data-pick="${esc(p.id)}">
+      ${p.full_picture ? `<img src="${esc(p.full_picture)}" alt="" loading="lazy">` : '<div class="noimg"></div>'}
+      <span class="ck">${sel ? '✓' : ''}</span>
+      <div class="t"><b>${time} น.</b>${used ? ' · <span class="ok">ยิงแล้ว</span>' : ''}<br>${esc(msg)}</div></div>`;
+  }).join('');
+}
+function togglePick(id){
+  const p = dayPosts.find(x => x.id === id); if (!p) return;
+  const existing = rows.find(r => r.post === id);
+  if (existing && existing.done) return;
+  if (existing) {
+    rows = rows.filter(r => r !== existing);
+  } else {
+    rows = rows.filter(r => r.done || r.post.trim());
+    const r = newRow(); r.post = id; r.prev = p; r.at = p.created_time; rows.push(r);
+  }
+  const done = rows.filter(r => r.done), todo = rows.filter(r => !r.done);
+  todo.sort((a, b) => (a.at || '9999').localeCompare(b.at || '9999'));
+  rows = done.concat(todo);
+  if (!rows.length) rows = [newRow()];
+  updateNames(); renderRows(); renderPicks(); updateShootLabel();
+}
+
+// ---------- ARCHIVE ----------
+const AD_LIMIT = 50;
+let arcAds = [], arcArmed = false;
+async function liveAds(){
+  const ads = await gall(`${S.adset.id}/ads`, {fields: 'id,name,effective_status,status,created_time'});
+  return ads.filter(a => !['ARCHIVED', 'DELETED'].includes(a.effective_status) && !['ARCHIVED', 'DELETED'].includes(a.status));
+}
+function arcCountText(n){
+  const cls = n >= AD_LIMIT ? 'err' : n >= AD_LIMIT - 10 ? 'run' : 'ok';
+  return `<span class="${cls}"><b>มีแอดอยู่ ${n}/${AD_LIMIT} ตัว</b></span> · ยิงเพิ่มได้อีก ${Math.max(0, AD_LIMIT - n)} ตัว`;
+}
+async function arcLoad(){
+  const btn = $('#btnArcLoad'); btn.disabled = true; btn.textContent = 'กำลังโหลด...';
+  try {
+    arcAds = await liveAds();
+    arcAds.sort((a, b) => (a.created_time || '').localeCompare(b.created_time || ''));
+    $('#arcCount').innerHTML = arcCountText(arcAds.length);
+    $('#arcPanel').classList.remove('hidden');
+    renderArc();
+  } catch(e){ $('#arcCount').innerHTML = `<span class="err">โหลดไม่ได้: ${esc(e.message)}</span>`; }
+  btn.disabled = false; btn.textContent = 'โหลดใหม่';
+}
+function lockedReason(a){
+  if (S.schedule.some(s => s.adId === a.id)) return 'รอตั้งเวลา';
+  return '';
+}
+function renderArc(){
+  const pendingIds = new Set(S.schedule.map(s => s.adId));
+  $('#arcList').innerHTML = arcAds.length ? arcAds.map(a => {
+    const lock = lockedReason(a);
+    const age = a.created_time ? Math.floor((Date.now() - new Date(a.created_time).getTime()) / 86400000) : '?';
+    return `<label class="sched" style="padding:8px 12px;cursor:${lock ? 'default' : 'pointer'}">
+      <span class="flex" style="gap:10px"><input type="checkbox" data-arc="${esc(a.id)}" ${a._sel ? 'checked' : ''} ${lock ? 'disabled' : ''}>
+      <span><b>${esc(a.name)}</b><br><span class="muted">${esc(stTh(a.effective_status))} · สร้างเมื่อ ${a.created_time ? esc(new Date(a.created_time).toLocaleDateString('th-TH')) : '-'} (${age} วัน)${lock ? ' · ' + lock : ''}${S.templateAd && S.templateAd.id === a.id ? ' · แอดต้นแบบ (เก็บถาวรได้ เทมเพลตบันทึกไว้แล้ว)' : ''}</span></span></span></label>`;
+  }).join('') : '<p class="muted" style="padding:12px;margin:0">ไม่มีแอดในชุดโฆษณานี้</p>';
+  updateArcBtn();
+}
+function updateArcBtn(){
+  const n = arcAds.filter(a => a._sel).length;
+  const b = $('#btnArcGo');
+  b.disabled = !n;
+  b.textContent = arcArmed ? `ยืนยัน: เก็บถาวร ${n} แอด (กู้คืนไม่ได้)` : (n ? `เก็บถาวรแอดที่เลือก (${n})` : 'เก็บถาวรแอดที่เลือก');
+  b.style.background = arcArmed ? 'var(--red)' : ''; b.style.borderColor = arcArmed ? 'var(--red)' : '';
+}
+async function arcGo(){
+  const sel = arcAds.filter(a => a._sel);
+  if (!sel.length) return;
+  if (!arcArmed){ arcArmed = true; updateArcBtn(); return; }
+  arcArmed = false;
+  const b = $('#btnArcGo'); b.disabled = true;
+  let ok = 0, fail = [];
+  for (const a of sel){
+    $('#arcMsg').innerHTML = `<span class="run">กำลังเก็บถาวร ${ok + fail.length + 1}/${sel.length}...</span>`;
+    try { await gapi(a.id, {status: 'ARCHIVED'}, 'POST'); ok++; }
+    catch(e){ fail.push(`${a.name}: ${e.message}`); }
+  }
+  $('#arcMsg').innerHTML = `<span class="${fail.length ? 'err' : 'ok'}">เก็บถาวรแล้ว ${ok} แอด${fail.length ? ' · ไม่สำเร็จ ' + fail.length + ': ' + esc(fail.join(' | ')) : ''}</span>`;
+  await arcLoad();
+}
+
+// ---------- events ----------
+$('#btnArcLoad').onclick = arcLoad;
+$('#arcList').addEventListener('change', e => {
+  const id = e.target.dataset.arc; if (!id) return;
+  const a = arcAds.find(x => x.id === id); if (a) a._sel = e.target.checked;
+  arcArmed = false; updateArcBtn();
+});
+$('#btnArcPick').onclick = () => {
+  const d = parseFloat($('#arcDays').value); if (isNaN(d)) return;
+  const cut = Date.now() - d * 86400000;
+  arcAds.forEach(a => { a._sel = !lockedReason(a) && a.created_time && new Date(a.created_time).getTime() < cut; });
+  arcArmed = false; renderArc();
+};
+$('#btnArcNone').onclick = () => { arcAds.forEach(a => a._sel = false); arcArmed = false; renderArc(); };
+$('#btnArcGo').onclick = arcGo;
+$('#btnSettings').onclick = openSettings;
+$('#btnConnect').onclick = connect;
+$('#selAcct').onchange = onAcct;
+$('#selPage').onchange = onPage;
+$('#selCamp').onchange = onCamp;
+$('#selAdset').onchange = onAdset;
+$('#selTmplAd').onchange = onTmpl;
+$('#btnSaveSettings').onclick = saveSettings;
+$('#btnCloseSettings').onclick = () => { D = {}; configured() ? openMain() : null; };
+$('#btnForget').onclick = forget;
+
+$('#btnAdd').onclick = () => { rows.push(newRow()); updateNames(); renderRows(); updateShootLabel(); const ins = document.querySelectorAll('[data-post]'); ins[ins.length - 1].focus(); };
+$('#btnResetNames').onclick = () => { rows.forEach(r => { if (!r.done) r.manual = false; }); updateNames(); };
+$('#btnClearDone').onclick = () => { rows = rows.filter(r => !r.done); if (!rows.length) rows = [newRow()]; updateNames(); renderRows(); updateShootLabel(); renderPicks(); $('#shootMsg').innerHTML = ''; };
+$('#inDate').onchange = () => { updateNames(); if (S.mode === 'pick') fetchPosts(); };
+$('#modeManual').onclick = () => setMode('manual');
+$('#modePick').onclick = () => setMode('pick');
+$('#btnFetchPosts').onclick = fetchPosts;
+$('#pickList').addEventListener('click', e => { const c = e.target.closest('[data-pick]'); if (c) togglePick(c.dataset.pick); });
+$('#inRound').oninput = updateNames;
+$('#rows').addEventListener('input', e => {
+  const t = e.target;
+  if (t.dataset.post){ const r = rows.find(x => x.k == t.dataset.post); r.post = t.value; }
+  if (t.dataset.name){ const r = rows.find(x => x.k == t.dataset.name); r.name = t.value; r.manual = true; }
+});
+$('#rows').addEventListener('change', e => {
+  const t = e.target;
+  if (t.dataset.post){ const r = rows.find(x => x.k == t.dataset.post); previewRow(r); }
+});
+$('#rows').addEventListener('click', e => {
+  const k = e.target.dataset.del; if (!k) return;
+  rows = rows.filter(r => r.k != k); if (!rows.length) rows = [newRow()];
+  updateNames(); renderRows(); updateShootLabel(); renderPicks();
+});
+$('#chkNow').onchange = () => {
+  const now = $('#chkNow').checked;
+  $('#whenWrap').classList.toggle('hidden', now);
+  $('#nowLabel').innerHTML = now ? '<b>เปิดทำงานทันที</b>' : '<b>ปิดไว้ก่อน</b> — ตั้งเวลาเผยแพร่';
+  if (!now && !$('#inWhen').value) $('#inWhen').value = defaultWhen();
+  updateShootLabel();
+};
+$('#btnShoot').onclick = shoot;
+$('#schedList').addEventListener('click', e => {
+  const go = e.target.dataset.go, cancel = e.target.dataset.cancel;
+  if (go){ const s = S.schedule.find(x => x.adId === go); if (s) activate(s); }
+  if (cancel){ S.schedule = S.schedule.filter(x => x.adId !== cancel); save(); renderSched(); notice('ยกเลิกการตั้งเวลาแล้ว แอดยังคงปิดอยู่ใน Ads Manager'); }
+});
+$('#btnOverdueGo').onclick = async () => { for (const s of S.schedule.filter(x => x.overdue)){ s.overdue = false; s.error = ''; await activate(s); } };
+$('#btnOverdueCancel').onclick = () => { S.schedule = S.schedule.filter(x => !x.overdue); save(); renderSched(); };
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') renderSched(); });
+
+// ---------- init ----------
+const loadAt = Date.now();
+S.schedule.forEach(s => { s.busy = false; if (s.at < loadAt - 60000) s.overdue = true; });
+save();
+renderHeader();
+if (configured()) openMain(); else openSettings();
+updateShootLabel();
+setInterval(tick, 15000); tick();
+setInterval(tickCountdown, 1000);
+// keep label in sync after row edits
+document.addEventListener('input', () => { if (!busy) updateShootLabel(); });
+})();
+</script>
+</body>
+</html>
