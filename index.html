@@ -656,13 +656,17 @@ function cleanWM(raw){
       text_format: {customer_action_type: tf.customer_action_type || 'ice_breakers', message: {
         ice_breakers: (m.ice_breakers || []).map(x => ({title: x.title, response: x.response})),
         quick_replies: m.quick_replies || [], text: m.text || ''}},
+      auto_follow_up_disabled: true, reengagement_disabled: true,
       user_edit: true, surface: 'visual_editor_new'};
     return JSON.stringify(out);
   } catch(e){ return raw; }
 }
 function creativeVariants(story){
   const t = S.tmpl, ex = t.extra || {}, cta = t.call_to_action_type || 'MESSAGE_PAGE';
-  const wm = t.page_welcome_message ? {page_welcome_message: t.page_welcome_message} : {};
+  // ปิดข้อความติดตามผลอัตโนมัติ และข้อความดึงลูกค้ากลับ ในทุกรูปแบบ
+  let wmRaw = t.page_welcome_message || '';
+  try { if (wmRaw){ const w = JSON.parse(wmRaw); w.auto_follow_up_disabled = true; w.reengagement_disabled = true; wmRaw = JSON.stringify(w); } } catch(e){}
+  const wm = wmRaw ? {page_welcome_message: wmRaw} : {};
   // ปิด product extensions (ต้องใช้สิทธิ์แค็ตตาล็อก ซึ่งแอปไม่มี) ที่เหลือเหมือนแอดต้นแบบ
   const dofOff = {creative_features_spec: {product_extensions: {enroll_status: 'OPT_OUT'}}};
   const ig = ex.instagram_user_id ? {instagram_user_id: ex.instagram_user_id} : {};
